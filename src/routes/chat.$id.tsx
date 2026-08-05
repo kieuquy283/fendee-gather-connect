@@ -70,7 +70,7 @@ function ChatRoom() {
           </p>
         </Link>
 
-        {thread.map((m, i) => (
+        {thread.map((m: { from: "me" | "them"; text: string; time: string }, i: number) => (
           <div
             key={i}
             className={cn(
