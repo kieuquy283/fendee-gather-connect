@@ -13,8 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AddFriendRouteImport } from './routes/add-friend'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as SetupProfileRouteImport } from './routes/setup-profile'
+import { Route as WidgetsRouteImport } from './routes/widgets'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
 import { Route as FriendsIndexRouteImport } from './routes/friends.index'
@@ -26,6 +28,7 @@ import { Route as NearbyIndexRouteImport } from './routes/nearby.index'
 import { Route as NearbyFiltersRouteImport } from './routes/nearby.filters'
 import { Route as ProfileIndexRouteImport } from './routes/profile.index'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
+import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,6 +50,11 @@ const HomeRoute = HomeRouteImport.update({
   path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -55,6 +63,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const SetupProfileRoute = SetupProfileRouteImport.update({
   id: '/setup-profile',
   path: '/setup-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WidgetsRoute = WidgetsRouteImport.update({
+  id: '/widgets',
+  path: '/widgets',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
@@ -112,20 +125,28 @@ const ProfileIdRoute = ProfileIdRouteImport.update({
   path: '/profile/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
+  id: '/settings/privacy',
+  path: '/settings/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
   '/home': typeof HomeRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/widgets': typeof WidgetsRoute
   '/chat/$id': typeof ChatIdRoute
   '/friends/requests': typeof FriendsRequestsRoute
   '/gather/$id': typeof GatherIdRoute
   '/gather/new': typeof GatherNewRoute
   '/nearby/filters': typeof NearbyFiltersRoute
   '/profile/$id': typeof ProfileIdRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
   '/chat/': typeof ChatIndexRoute
   '/friends/': typeof FriendsIndexRoute
   '/gather/': typeof GatherIndexRoute
@@ -137,14 +158,17 @@ export interface FileRoutesByTo {
   '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
   '/home': typeof HomeRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/widgets': typeof WidgetsRoute
   '/chat/$id': typeof ChatIdRoute
   '/friends/requests': typeof FriendsRequestsRoute
   '/gather/$id': typeof GatherIdRoute
   '/gather/new': typeof GatherNewRoute
   '/nearby/filters': typeof NearbyFiltersRoute
   '/profile/$id': typeof ProfileIdRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
   '/chat': typeof ChatIndexRoute
   '/friends': typeof FriendsIndexRoute
   '/gather': typeof GatherIndexRoute
@@ -157,14 +181,17 @@ export interface FileRoutesById {
   '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
   '/home': typeof HomeRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/widgets': typeof WidgetsRoute
   '/chat/$id': typeof ChatIdRoute
   '/friends/requests': typeof FriendsRequestsRoute
   '/gather/$id': typeof GatherIdRoute
   '/gather/new': typeof GatherNewRoute
   '/nearby/filters': typeof NearbyFiltersRoute
   '/profile/$id': typeof ProfileIdRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
   '/chat/': typeof ChatIndexRoute
   '/friends/': typeof FriendsIndexRoute
   '/gather/': typeof GatherIndexRoute
@@ -178,14 +205,17 @@ export interface FileRouteTypes {
     | '/add-friend'
     | '/auth'
     | '/home'
+    | '/notifications'
     | '/onboarding'
     | '/setup-profile'
+    | '/widgets'
     | '/chat/$id'
     | '/friends/requests'
     | '/gather/$id'
     | '/gather/new'
     | '/nearby/filters'
     | '/profile/$id'
+    | '/settings/privacy'
     | '/chat/'
     | '/friends/'
     | '/gather/'
@@ -197,14 +227,17 @@ export interface FileRouteTypes {
     | '/add-friend'
     | '/auth'
     | '/home'
+    | '/notifications'
     | '/onboarding'
     | '/setup-profile'
+    | '/widgets'
     | '/chat/$id'
     | '/friends/requests'
     | '/gather/$id'
     | '/gather/new'
     | '/nearby/filters'
     | '/profile/$id'
+    | '/settings/privacy'
     | '/chat'
     | '/friends'
     | '/gather'
@@ -216,14 +249,17 @@ export interface FileRouteTypes {
     | '/add-friend'
     | '/auth'
     | '/home'
+    | '/notifications'
     | '/onboarding'
     | '/setup-profile'
+    | '/widgets'
     | '/chat/$id'
     | '/friends/requests'
     | '/gather/$id'
     | '/gather/new'
     | '/nearby/filters'
     | '/profile/$id'
+    | '/settings/privacy'
     | '/chat/'
     | '/friends/'
     | '/gather/'
@@ -236,14 +272,17 @@ export interface RootRouteChildren {
   AddFriendRoute: typeof AddFriendRoute
   AuthRoute: typeof AuthRoute
   HomeRoute: typeof HomeRoute
+  NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
   SetupProfileRoute: typeof SetupProfileRoute
+  WidgetsRoute: typeof WidgetsRoute
   ChatIdRoute: typeof ChatIdRoute
   FriendsRequestsRoute: typeof FriendsRequestsRoute
   GatherIdRoute: typeof GatherIdRoute
   GatherNewRoute: typeof GatherNewRoute
   NearbyFiltersRoute: typeof NearbyFiltersRoute
   ProfileIdRoute: typeof ProfileIdRoute
+  SettingsPrivacyRoute: typeof SettingsPrivacyRoute
   ChatIndexRoute: typeof ChatIndexRoute
   FriendsIndexRoute: typeof FriendsIndexRoute
   GatherIndexRoute: typeof GatherIndexRoute
@@ -281,6 +320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -293,6 +339,13 @@ declare module '@tanstack/react-router' {
       path: '/setup-profile'
       fullPath: '/setup-profile'
       preLoaderRoute: typeof SetupProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/widgets': {
+      id: '/widgets'
+      path: '/widgets'
+      fullPath: '/widgets'
+      preLoaderRoute: typeof WidgetsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/': {
@@ -372,6 +425,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/privacy': {
+      id: '/settings/privacy'
+      path: '/settings/privacy'
+      fullPath: '/settings/privacy'
+      preLoaderRoute: typeof SettingsPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -380,14 +440,17 @@ const rootRouteChildren: RootRouteChildren = {
   AddFriendRoute: AddFriendRoute,
   AuthRoute: AuthRoute,
   HomeRoute: HomeRoute,
+  NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
   SetupProfileRoute: SetupProfileRoute,
+  WidgetsRoute: WidgetsRoute,
   ChatIdRoute: ChatIdRoute,
   FriendsRequestsRoute: FriendsRequestsRoute,
   GatherIdRoute: GatherIdRoute,
   GatherNewRoute: GatherNewRoute,
   NearbyFiltersRoute: NearbyFiltersRoute,
   ProfileIdRoute: ProfileIdRoute,
+  SettingsPrivacyRoute: SettingsPrivacyRoute,
   ChatIndexRoute: ChatIndexRoute,
   FriendsIndexRoute: FriendsIndexRoute,
   GatherIndexRoute: GatherIndexRoute,
