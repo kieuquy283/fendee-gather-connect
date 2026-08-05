@@ -134,7 +134,7 @@ function OtherProfile() {
               Sở thích
             </h2>
             <div className="flex flex-wrap gap-2">
-              {person.interests.map((i) => (
+              {person.interests.map((i: string) => (
                 <Chip key={i}>{i}</Chip>
               ))}
             </div>
@@ -146,7 +146,7 @@ function OtherProfile() {
                 <HandHeart className="h-4 w-4 text-primary" /> Có thể giúp
               </p>
               <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                {person.canHelp.map((c) => (
+                {person.canHelp.map((c: string) => (
                   <li key={c}>• {c}</li>
                 ))}
               </ul>
@@ -156,7 +156,7 @@ function OtherProfile() {
                 <HelpCircle className="h-4 w-4 text-primary" /> Đang cần giúp
               </p>
               <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                {person.needHelp.map((c) => (
+                {person.needHelp.map((c: string) => (
                   <li key={c}>• {c}</li>
                 ))}
               </ul>
