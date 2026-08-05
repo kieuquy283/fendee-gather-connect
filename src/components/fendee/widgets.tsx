@@ -38,8 +38,9 @@ function WidgetBrand({ label }: { label: string }) {
 }
 
 export function WidgetSmall() {
-  const g = gathers[0];
+  const g = gathers[0]!;
   const host = getPerson(g.hostId)!;
+
   return (
     <Link to="/gather/$id" params={{ id: g.id }} className="block">
       <WidgetFrame size="sm">
