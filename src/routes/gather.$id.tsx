@@ -100,7 +100,7 @@ function GatherDetail() {
         </h2>
         {gather.joined.length ? (
           <ul className="space-y-2">
-            {gather.joined.map((id) => {
+            {gather.joined.map((id: string) => {
               const p = getPerson(id)!;
               return (
                 <li
