@@ -16,6 +16,7 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as SetupProfileRouteImport } from './routes/setup-profile'
 import { Route as GatherIndexRouteImport } from './routes/gather.index'
+import { Route as GatherNewRouteImport } from './routes/gather.new'
 import { Route as NearbyIndexRouteImport } from './routes/nearby.index'
 import { Route as NearbyFiltersRouteImport } from './routes/nearby.filters'
 
@@ -54,6 +55,11 @@ const GatherIndexRoute = GatherIndexRouteImport.update({
   path: '/gather/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GatherNewRoute = GatherNewRouteImport.update({
+  id: '/gather/new',
+  path: '/gather/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NearbyIndexRoute = NearbyIndexRouteImport.update({
   id: '/nearby/',
   path: '/nearby/',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/gather/new': typeof GatherNewRoute
   '/nearby/filters': typeof NearbyFiltersRoute
   '/gather/': typeof GatherIndexRoute
   '/nearby/': typeof NearbyIndexRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/gather/new': typeof GatherNewRoute
   '/nearby/filters': typeof NearbyFiltersRoute
   '/gather': typeof GatherIndexRoute
   '/nearby': typeof NearbyIndexRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/gather/new': typeof GatherNewRoute
   '/nearby/filters': typeof NearbyFiltersRoute
   '/gather/': typeof GatherIndexRoute
   '/nearby/': typeof NearbyIndexRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/onboarding'
     | '/setup-profile'
+    | '/gather/new'
     | '/nearby/filters'
     | '/gather/'
     | '/nearby/'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/onboarding'
     | '/setup-profile'
+    | '/gather/new'
     | '/nearby/filters'
     | '/gather'
     | '/nearby'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/onboarding'
     | '/setup-profile'
+    | '/gather/new'
     | '/nearby/filters'
     | '/gather/'
     | '/nearby/'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   OnboardingRoute: typeof OnboardingRoute
   SetupProfileRoute: typeof SetupProfileRoute
+  GatherNewRoute: typeof GatherNewRoute
   NearbyFiltersRoute: typeof NearbyFiltersRoute
   GatherIndexRoute: typeof GatherIndexRoute
   NearbyIndexRoute: typeof NearbyIndexRoute
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GatherIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gather/new': {
+      id: '/gather/new'
+      path: '/gather/new'
+      fullPath: '/gather/new'
+      preLoaderRoute: typeof GatherNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/nearby/': {
       id: '/nearby/'
       path: '/nearby'
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   OnboardingRoute: OnboardingRoute,
   SetupProfileRoute: SetupProfileRoute,
+  GatherNewRoute: GatherNewRoute,
   NearbyFiltersRoute: NearbyFiltersRoute,
   GatherIndexRoute: GatherIndexRoute,
   NearbyIndexRoute: NearbyIndexRoute,
