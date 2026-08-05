@@ -10,33 +10,284 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AddFriendRouteImport } from './routes/add-friend'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as SetupProfileRouteImport } from './routes/setup-profile'
+import { Route as WidgetsRouteImport } from './routes/widgets'
+import { Route as ChatIndexRouteImport } from './routes/chat.index'
+import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as FriendsIndexRouteImport } from './routes/friends.index'
+import { Route as FriendsRequestsRouteImport } from './routes/friends.requests'
+import { Route as GatherIndexRouteImport } from './routes/gather.index'
+import { Route as GatherIdRouteImport } from './routes/gather.$id'
+import { Route as GatherNewRouteImport } from './routes/gather.new'
+import { Route as NearbyIndexRouteImport } from './routes/nearby.index'
+import { Route as NearbyFiltersRouteImport } from './routes/nearby.filters'
+import { Route as ProfileIndexRouteImport } from './routes/profile.index'
+import { Route as ProfileIdRouteImport } from './routes/profile.$id'
+import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AddFriendRoute = AddFriendRouteImport.update({
+  id: '/add-friend',
+  path: '/add-friend',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetupProfileRoute = SetupProfileRouteImport.update({
+  id: '/setup-profile',
+  path: '/setup-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WidgetsRoute = WidgetsRouteImport.update({
+  id: '/widgets',
+  path: '/widgets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIdRoute = ChatIdRouteImport.update({
+  id: '/chat/$id',
+  path: '/chat/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FriendsIndexRoute = FriendsIndexRouteImport.update({
+  id: '/friends/',
+  path: '/friends/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FriendsRequestsRoute = FriendsRequestsRouteImport.update({
+  id: '/friends/requests',
+  path: '/friends/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GatherIndexRoute = GatherIndexRouteImport.update({
+  id: '/gather/',
+  path: '/gather/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GatherIdRoute = GatherIdRouteImport.update({
+  id: '/gather/$id',
+  path: '/gather/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GatherNewRoute = GatherNewRouteImport.update({
+  id: '/gather/new',
+  path: '/gather/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NearbyIndexRoute = NearbyIndexRouteImport.update({
+  id: '/nearby/',
+  path: '/nearby/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NearbyFiltersRoute = NearbyFiltersRouteImport.update({
+  id: '/nearby/filters',
+  path: '/nearby/filters',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileIndexRoute = ProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileIdRoute = ProfileIdRouteImport.update({
+  id: '/profile/$id',
+  path: '/profile/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
+  id: '/settings/privacy',
+  path: '/settings/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/add-friend': typeof AddFriendRoute
+  '/auth': typeof AuthRoute
+  '/home': typeof HomeRoute
+  '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
+  '/setup-profile': typeof SetupProfileRoute
+  '/widgets': typeof WidgetsRoute
+  '/chat/$id': typeof ChatIdRoute
+  '/friends/requests': typeof FriendsRequestsRoute
+  '/gather/$id': typeof GatherIdRoute
+  '/gather/new': typeof GatherNewRoute
+  '/nearby/filters': typeof NearbyFiltersRoute
+  '/profile/$id': typeof ProfileIdRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
+  '/chat/': typeof ChatIndexRoute
+  '/friends/': typeof FriendsIndexRoute
+  '/gather/': typeof GatherIndexRoute
+  '/nearby/': typeof NearbyIndexRoute
+  '/profile/': typeof ProfileIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/add-friend': typeof AddFriendRoute
+  '/auth': typeof AuthRoute
+  '/home': typeof HomeRoute
+  '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
+  '/setup-profile': typeof SetupProfileRoute
+  '/widgets': typeof WidgetsRoute
+  '/chat/$id': typeof ChatIdRoute
+  '/friends/requests': typeof FriendsRequestsRoute
+  '/gather/$id': typeof GatherIdRoute
+  '/gather/new': typeof GatherNewRoute
+  '/nearby/filters': typeof NearbyFiltersRoute
+  '/profile/$id': typeof ProfileIdRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
+  '/chat': typeof ChatIndexRoute
+  '/friends': typeof FriendsIndexRoute
+  '/gather': typeof GatherIndexRoute
+  '/nearby': typeof NearbyIndexRoute
+  '/profile': typeof ProfileIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/add-friend': typeof AddFriendRoute
+  '/auth': typeof AuthRoute
+  '/home': typeof HomeRoute
+  '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
+  '/setup-profile': typeof SetupProfileRoute
+  '/widgets': typeof WidgetsRoute
+  '/chat/$id': typeof ChatIdRoute
+  '/friends/requests': typeof FriendsRequestsRoute
+  '/gather/$id': typeof GatherIdRoute
+  '/gather/new': typeof GatherNewRoute
+  '/nearby/filters': typeof NearbyFiltersRoute
+  '/profile/$id': typeof ProfileIdRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
+  '/chat/': typeof ChatIndexRoute
+  '/friends/': typeof FriendsIndexRoute
+  '/gather/': typeof GatherIndexRoute
+  '/nearby/': typeof NearbyIndexRoute
+  '/profile/': typeof ProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/add-friend'
+    | '/auth'
+    | '/home'
+    | '/notifications'
+    | '/onboarding'
+    | '/setup-profile'
+    | '/widgets'
+    | '/chat/$id'
+    | '/friends/requests'
+    | '/gather/$id'
+    | '/gather/new'
+    | '/nearby/filters'
+    | '/profile/$id'
+    | '/settings/privacy'
+    | '/chat/'
+    | '/friends/'
+    | '/gather/'
+    | '/nearby/'
+    | '/profile/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/add-friend'
+    | '/auth'
+    | '/home'
+    | '/notifications'
+    | '/onboarding'
+    | '/setup-profile'
+    | '/widgets'
+    | '/chat/$id'
+    | '/friends/requests'
+    | '/gather/$id'
+    | '/gather/new'
+    | '/nearby/filters'
+    | '/profile/$id'
+    | '/settings/privacy'
+    | '/chat'
+    | '/friends'
+    | '/gather'
+    | '/nearby'
+    | '/profile'
+  id:
+    | '__root__'
+    | '/'
+    | '/add-friend'
+    | '/auth'
+    | '/home'
+    | '/notifications'
+    | '/onboarding'
+    | '/setup-profile'
+    | '/widgets'
+    | '/chat/$id'
+    | '/friends/requests'
+    | '/gather/$id'
+    | '/gather/new'
+    | '/nearby/filters'
+    | '/profile/$id'
+    | '/settings/privacy'
+    | '/chat/'
+    | '/friends/'
+    | '/gather/'
+    | '/nearby/'
+    | '/profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AddFriendRoute: typeof AddFriendRoute
+  AuthRoute: typeof AuthRoute
+  HomeRoute: typeof HomeRoute
+  NotificationsRoute: typeof NotificationsRoute
+  OnboardingRoute: typeof OnboardingRoute
+  SetupProfileRoute: typeof SetupProfileRoute
+  WidgetsRoute: typeof WidgetsRoute
+  ChatIdRoute: typeof ChatIdRoute
+  FriendsRequestsRoute: typeof FriendsRequestsRoute
+  GatherIdRoute: typeof GatherIdRoute
+  GatherNewRoute: typeof GatherNewRoute
+  NearbyFiltersRoute: typeof NearbyFiltersRoute
+  ProfileIdRoute: typeof ProfileIdRoute
+  SettingsPrivacyRoute: typeof SettingsPrivacyRoute
+  ChatIndexRoute: typeof ChatIndexRoute
+  FriendsIndexRoute: typeof FriendsIndexRoute
+  GatherIndexRoute: typeof GatherIndexRoute
+  NearbyIndexRoute: typeof NearbyIndexRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +299,164 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/add-friend': {
+      id: '/add-friend'
+      path: '/add-friend'
+      fullPath: '/add-friend'
+      preLoaderRoute: typeof AddFriendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/setup-profile': {
+      id: '/setup-profile'
+      path: '/setup-profile'
+      fullPath: '/setup-profile'
+      preLoaderRoute: typeof SetupProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/widgets': {
+      id: '/widgets'
+      path: '/widgets'
+      fullPath: '/widgets'
+      preLoaderRoute: typeof WidgetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$id': {
+      id: '/chat/$id'
+      path: '/chat/$id'
+      fullPath: '/chat/$id'
+      preLoaderRoute: typeof ChatIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/friends/': {
+      id: '/friends/'
+      path: '/friends'
+      fullPath: '/friends/'
+      preLoaderRoute: typeof FriendsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/friends/requests': {
+      id: '/friends/requests'
+      path: '/friends/requests'
+      fullPath: '/friends/requests'
+      preLoaderRoute: typeof FriendsRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gather/': {
+      id: '/gather/'
+      path: '/gather'
+      fullPath: '/gather/'
+      preLoaderRoute: typeof GatherIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gather/$id': {
+      id: '/gather/$id'
+      path: '/gather/$id'
+      fullPath: '/gather/$id'
+      preLoaderRoute: typeof GatherIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gather/new': {
+      id: '/gather/new'
+      path: '/gather/new'
+      fullPath: '/gather/new'
+      preLoaderRoute: typeof GatherNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nearby/': {
+      id: '/nearby/'
+      path: '/nearby'
+      fullPath: '/nearby/'
+      preLoaderRoute: typeof NearbyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nearby/filters': {
+      id: '/nearby/filters'
+      path: '/nearby/filters'
+      fullPath: '/nearby/filters'
+      preLoaderRoute: typeof NearbyFiltersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/': {
+      id: '/profile/'
+      path: '/profile'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof ProfileIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/$id': {
+      id: '/profile/$id'
+      path: '/profile/$id'
+      fullPath: '/profile/$id'
+      preLoaderRoute: typeof ProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/privacy': {
+      id: '/settings/privacy'
+      path: '/settings/privacy'
+      fullPath: '/settings/privacy'
+      preLoaderRoute: typeof SettingsPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AddFriendRoute: AddFriendRoute,
+  AuthRoute: AuthRoute,
+  HomeRoute: HomeRoute,
+  NotificationsRoute: NotificationsRoute,
+  OnboardingRoute: OnboardingRoute,
+  SetupProfileRoute: SetupProfileRoute,
+  WidgetsRoute: WidgetsRoute,
+  ChatIdRoute: ChatIdRoute,
+  FriendsRequestsRoute: FriendsRequestsRoute,
+  GatherIdRoute: GatherIdRoute,
+  GatherNewRoute: GatherNewRoute,
+  NearbyFiltersRoute: NearbyFiltersRoute,
+  ProfileIdRoute: ProfileIdRoute,
+  SettingsPrivacyRoute: SettingsPrivacyRoute,
+  ChatIndexRoute: ChatIndexRoute,
+  FriendsIndexRoute: FriendsIndexRoute,
+  GatherIndexRoute: GatherIndexRoute,
+  NearbyIndexRoute: NearbyIndexRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
