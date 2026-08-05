@@ -18,6 +18,7 @@ import { Route as SetupProfileRouteImport } from './routes/setup-profile'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
 import { Route as FriendsIndexRouteImport } from './routes/friends.index'
+import { Route as FriendsRequestsRouteImport } from './routes/friends.requests'
 import { Route as GatherIndexRouteImport } from './routes/gather.index'
 import { Route as GatherIdRouteImport } from './routes/gather.$id'
 import { Route as GatherNewRouteImport } from './routes/gather.new'
@@ -71,6 +72,11 @@ const FriendsIndexRoute = FriendsIndexRouteImport.update({
   path: '/friends/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FriendsRequestsRoute = FriendsRequestsRouteImport.update({
+  id: '/friends/requests',
+  path: '/friends/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GatherIndexRoute = GatherIndexRouteImport.update({
   id: '/gather/',
   path: '/gather/',
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
   '/chat/$id': typeof ChatIdRoute
+  '/friends/requests': typeof FriendsRequestsRoute
   '/gather/$id': typeof GatherIdRoute
   '/gather/new': typeof GatherNewRoute
   '/nearby/filters': typeof NearbyFiltersRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
   '/chat/$id': typeof ChatIdRoute
+  '/friends/requests': typeof FriendsRequestsRoute
   '/gather/$id': typeof GatherIdRoute
   '/gather/new': typeof GatherNewRoute
   '/nearby/filters': typeof NearbyFiltersRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
   '/chat/$id': typeof ChatIdRoute
+  '/friends/requests': typeof FriendsRequestsRoute
   '/gather/$id': typeof GatherIdRoute
   '/gather/new': typeof GatherNewRoute
   '/nearby/filters': typeof NearbyFiltersRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/setup-profile'
     | '/chat/$id'
+    | '/friends/requests'
     | '/gather/$id'
     | '/gather/new'
     | '/nearby/filters'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/setup-profile'
     | '/chat/$id'
+    | '/friends/requests'
     | '/gather/$id'
     | '/gather/new'
     | '/nearby/filters'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/setup-profile'
     | '/chat/$id'
+    | '/friends/requests'
     | '/gather/$id'
     | '/gather/new'
     | '/nearby/filters'
@@ -227,6 +239,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   SetupProfileRoute: typeof SetupProfileRoute
   ChatIdRoute: typeof ChatIdRoute
+  FriendsRequestsRoute: typeof FriendsRequestsRoute
   GatherIdRoute: typeof GatherIdRoute
   GatherNewRoute: typeof GatherNewRoute
   NearbyFiltersRoute: typeof NearbyFiltersRoute
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FriendsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/friends/requests': {
+      id: '/friends/requests'
+      path: '/friends/requests'
+      fullPath: '/friends/requests'
+      preLoaderRoute: typeof FriendsRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gather/': {
       id: '/gather/'
       path: '/gather'
@@ -363,6 +383,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   SetupProfileRoute: SetupProfileRoute,
   ChatIdRoute: ChatIdRoute,
+  FriendsRequestsRoute: FriendsRequestsRoute,
   GatherIdRoute: GatherIdRoute,
   GatherNewRoute: GatherNewRoute,
   NearbyFiltersRoute: NearbyFiltersRoute,
