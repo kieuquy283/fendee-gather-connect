@@ -100,7 +100,7 @@ function Privacy() {
                     <p className="mt-0.5 text-[11px] text-muted-foreground">{r.sub}</p>
                   </div>
                   <Switch
-                    checked={on[r.key]}
+                    checked={on[r.key] ?? false}
                     onCheckedChange={(v) => setOn((s) => ({ ...s, [r.key]: v }))}
                     aria-label={r.label}
                   />
