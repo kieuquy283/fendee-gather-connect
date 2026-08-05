@@ -16,6 +16,7 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as SetupProfileRouteImport } from './routes/setup-profile'
 import { Route as NearbyIndexRouteImport } from './routes/nearby.index'
+import { Route as NearbyFiltersRouteImport } from './routes/nearby.filters'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +53,11 @@ const NearbyIndexRoute = NearbyIndexRouteImport.update({
   path: '/nearby/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NearbyFiltersRoute = NearbyFiltersRouteImport.update({
+  id: '/nearby/filters',
+  path: '/nearby/filters',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/nearby/filters': typeof NearbyFiltersRoute
   '/nearby/': typeof NearbyIndexRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/nearby/filters': typeof NearbyFiltersRoute
   '/nearby': typeof NearbyIndexRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/nearby/filters': typeof NearbyFiltersRoute
   '/nearby/': typeof NearbyIndexRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/onboarding'
     | '/setup-profile'
+    | '/nearby/filters'
     | '/nearby/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/onboarding'
     | '/setup-profile'
+    | '/nearby/filters'
     | '/nearby'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/onboarding'
     | '/setup-profile'
+    | '/nearby/filters'
     | '/nearby/'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   OnboardingRoute: typeof OnboardingRoute
   SetupProfileRoute: typeof SetupProfileRoute
+  NearbyFiltersRoute: typeof NearbyFiltersRoute
   NearbyIndexRoute: typeof NearbyIndexRoute
 }
 
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NearbyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/nearby/filters': {
+      id: '/nearby/filters'
+      path: '/nearby/filters'
+      fullPath: '/nearby/filters'
+      preLoaderRoute: typeof NearbyFiltersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -182,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   OnboardingRoute: OnboardingRoute,
   SetupProfileRoute: SetupProfileRoute,
+  NearbyFiltersRoute: NearbyFiltersRoute,
   NearbyIndexRoute: NearbyIndexRoute,
 }
 export const routeTree = rootRouteImport
