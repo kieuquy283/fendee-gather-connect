@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/nearby")({
+export const Route = createFileRoute("/nearby/")({
   head: () => ({
     meta: [
       { title: "Nearby — Khám phá người đang Public quanh bạn | Fendee" },

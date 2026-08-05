@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AddFriendRouteImport } from './routes/add-friend'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as NearbyRouteImport } from './routes/nearby'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as SetupProfileRouteImport } from './routes/setup-profile'
 
@@ -36,6 +37,11 @@ const HomeRoute = HomeRouteImport.update({
   path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NearbyRoute = NearbyRouteImport.update({
+  id: '/nearby',
+  path: '/nearby',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
   '/home': typeof HomeRoute
+  '/nearby': typeof NearbyRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
   '/home': typeof HomeRoute
+  '/nearby': typeof NearbyRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
 }
@@ -69,21 +77,36 @@ export interface FileRoutesById {
   '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
   '/home': typeof HomeRoute
+  '/nearby': typeof NearbyRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/add-friend' | '/auth' | '/home' | '/onboarding' | '/setup-profile'
+    | '/'
+    | '/add-friend'
+    | '/auth'
+    | '/home'
+    | '/nearby'
+    | '/onboarding'
+    | '/setup-profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/add-friend' | '/auth' | '/home' | '/onboarding' | '/setup-profile'
+  to:
+    | '/'
+    | '/add-friend'
+    | '/auth'
+    | '/home'
+    | '/nearby'
+    | '/onboarding'
+    | '/setup-profile'
   id:
     | '__root__'
     | '/'
     | '/add-friend'
     | '/auth'
     | '/home'
+    | '/nearby'
     | '/onboarding'
     | '/setup-profile'
   fileRoutesById: FileRoutesById
@@ -93,6 +116,7 @@ export interface RootRouteChildren {
   AddFriendRoute: typeof AddFriendRoute
   AuthRoute: typeof AuthRoute
   HomeRoute: typeof HomeRoute
+  NearbyRoute: typeof NearbyRoute
   OnboardingRoute: typeof OnboardingRoute
   SetupProfileRoute: typeof SetupProfileRoute
 }
@@ -127,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/nearby': {
+      id: '/nearby'
+      path: '/nearby'
+      fullPath: '/nearby'
+      preLoaderRoute: typeof NearbyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -149,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   AddFriendRoute: AddFriendRoute,
   AuthRoute: AuthRoute,
   HomeRoute: HomeRoute,
+  NearbyRoute: NearbyRoute,
   OnboardingRoute: OnboardingRoute,
   SetupProfileRoute: SetupProfileRoute,
 }
