@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AddFriendRouteImport } from './routes/add-friend'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as SetupProfileRouteImport } from './routes/setup-profile'
@@ -17,6 +18,11 @@ import { Route as SetupProfileRouteImport } from './routes/setup-profile'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AddFriendRoute = AddFriendRouteImport.update({
+  id: '/add-friend',
+  path: '/add-friend',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -37,12 +43,14 @@ const SetupProfileRoute = SetupProfileRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
@@ -50,20 +58,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/onboarding' | '/setup-profile'
+  fullPaths: '/' | '/add-friend' | '/auth' | '/onboarding' | '/setup-profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/onboarding' | '/setup-profile'
-  id: '__root__' | '/' | '/auth' | '/onboarding' | '/setup-profile'
+  to: '/' | '/add-friend' | '/auth' | '/onboarding' | '/setup-profile'
+  id:
+    | '__root__'
+    | '/'
+    | '/add-friend'
+    | '/auth'
+    | '/onboarding'
+    | '/setup-profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AddFriendRoute: typeof AddFriendRoute
   AuthRoute: typeof AuthRoute
   OnboardingRoute: typeof OnboardingRoute
   SetupProfileRoute: typeof SetupProfileRoute
@@ -76,6 +92,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/add-friend': {
+      id: '/add-friend'
+      path: '/add-friend'
+      fullPath: '/add-friend'
+      preLoaderRoute: typeof AddFriendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -104,6 +127,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AddFriendRoute: AddFriendRoute,
   AuthRoute: AuthRoute,
   OnboardingRoute: OnboardingRoute,
   SetupProfileRoute: SetupProfileRoute,
