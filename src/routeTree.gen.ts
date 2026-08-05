@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AddFriendRouteImport } from './routes/add-friend'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as SetupProfileRouteImport } from './routes/setup-profile'
 
@@ -30,6 +31,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
+  '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
+  '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
 }
@@ -60,19 +68,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/add-friend': typeof AddFriendRoute
   '/auth': typeof AuthRoute
+  '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/add-friend' | '/auth' | '/onboarding' | '/setup-profile'
+  fullPaths:
+    '/' | '/add-friend' | '/auth' | '/home' | '/onboarding' | '/setup-profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/add-friend' | '/auth' | '/onboarding' | '/setup-profile'
+  to: '/' | '/add-friend' | '/auth' | '/home' | '/onboarding' | '/setup-profile'
   id:
     | '__root__'
     | '/'
     | '/add-friend'
     | '/auth'
+    | '/home'
     | '/onboarding'
     | '/setup-profile'
   fileRoutesById: FileRoutesById
@@ -81,6 +92,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AddFriendRoute: typeof AddFriendRoute
   AuthRoute: typeof AuthRoute
+  HomeRoute: typeof HomeRoute
   OnboardingRoute: typeof OnboardingRoute
   SetupProfileRoute: typeof SetupProfileRoute
 }
@@ -108,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -129,6 +148,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AddFriendRoute: AddFriendRoute,
   AuthRoute: AuthRoute,
+  HomeRoute: HomeRoute,
   OnboardingRoute: OnboardingRoute,
   SetupProfileRoute: SetupProfileRoute,
 }
