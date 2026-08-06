@@ -16,6 +16,7 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as SetupProfileRouteImport } from './routes/setup-profile'
+import { Route as TramRouteImport } from './routes/tram'
 import { Route as WidgetsRouteImport } from './routes/widgets'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
@@ -63,6 +64,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const SetupProfileRoute = SetupProfileRouteImport.update({
   id: '/setup-profile',
   path: '/setup-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TramRoute = TramRouteImport.update({
+  id: '/tram',
+  path: '/tram',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WidgetsRoute = WidgetsRouteImport.update({
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/tram': typeof TramRoute
   '/widgets': typeof WidgetsRoute
   '/chat/$id': typeof ChatIdRoute
   '/friends/requests': typeof FriendsRequestsRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/tram': typeof TramRoute
   '/widgets': typeof WidgetsRoute
   '/chat/$id': typeof ChatIdRoute
   '/friends/requests': typeof FriendsRequestsRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/setup-profile': typeof SetupProfileRoute
+  '/tram': typeof TramRoute
   '/widgets': typeof WidgetsRoute
   '/chat/$id': typeof ChatIdRoute
   '/friends/requests': typeof FriendsRequestsRoute
@@ -208,6 +217,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/setup-profile'
+    | '/tram'
     | '/widgets'
     | '/chat/$id'
     | '/friends/requests'
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/setup-profile'
+    | '/tram'
     | '/widgets'
     | '/chat/$id'
     | '/friends/requests'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/setup-profile'
+    | '/tram'
     | '/widgets'
     | '/chat/$id'
     | '/friends/requests'
@@ -275,6 +287,7 @@ export interface RootRouteChildren {
   NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
   SetupProfileRoute: typeof SetupProfileRoute
+  TramRoute: typeof TramRoute
   WidgetsRoute: typeof WidgetsRoute
   ChatIdRoute: typeof ChatIdRoute
   FriendsRequestsRoute: typeof FriendsRequestsRoute
@@ -339,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/setup-profile'
       fullPath: '/setup-profile'
       preLoaderRoute: typeof SetupProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tram': {
+      id: '/tram'
+      path: '/tram'
+      fullPath: '/tram'
+      preLoaderRoute: typeof TramRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/widgets': {
@@ -443,6 +463,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
   SetupProfileRoute: SetupProfileRoute,
+  TramRoute: TramRoute,
   WidgetsRoute: WidgetsRoute,
   ChatIdRoute: ChatIdRoute,
   FriendsRequestsRoute: FriendsRequestsRoute,
