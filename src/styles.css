@@ -40,6 +40,8 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-online: var(--online);
+  --color-warn: var(--warn);
+  --color-warn-foreground: var(--warn-foreground);
   --color-ring-offset-background: var(--background);
   --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
