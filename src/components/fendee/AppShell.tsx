@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 
 const tabs = [
   { to: "/home", label: "Home", icon: Home },
-  { to: "/nearby", label: "Nearby", icon: MapPin },
+  { to: "/tram", label: "Trạm", icon: MapPin },
   { to: "/gather", label: "Gather", icon: Users, center: true },
-  { to: "/chat", label: "Chat", icon: MessageCircle },
+  { to: "/chat", label: "Tin nhắn", icon: MessageCircle },
   { to: "/profile", label: "Profile", icon: User },
 ];
 
