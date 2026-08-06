@@ -40,10 +40,10 @@ export function AppearSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-[28px] border-border/70 px-5 pb-6">
-        <SheetHeader className="px-0 text-left">
+        <SheetHeader className="px-0 pb-1 text-left">
           <SheetTitle>Xuất hiện quanh đây</SheetTitle>
         </SheetHeader>
-        <p className="-mt-2 text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Fendee không tự bật vị trí. Bạn chọn ai thấy và trong bao lâu.
         </p>
 
