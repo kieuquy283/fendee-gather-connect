@@ -75,7 +75,7 @@ function Privacy() {
 
   return (
     <AppShell>
-      <TopBar title="Quyền riêng tư & an toàn" back="/profile" />
+      <TopBar title="Quyền riêng tư & an toàn" back="/settings" />
 
       <div className="rounded-3xl bg-brand-gradient p-4 text-primary-foreground shadow-glow">
         <ShieldCheck className="h-6 w-6" />

@@ -29,6 +29,7 @@ import { Route as NearbyIndexRouteImport } from './routes/nearby.index'
 import { Route as NearbyFiltersRouteImport } from './routes/nearby.filters'
 import { Route as ProfileIndexRouteImport } from './routes/profile.index'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
+import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
 
 const IndexRoute = IndexRouteImport.update({
@@ -131,6 +132,11 @@ const ProfileIdRoute = ProfileIdRouteImport.update({
   path: '/profile/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
   id: '/settings/privacy',
   path: '/settings/privacy',
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/gather/': typeof GatherIndexRoute
   '/nearby/': typeof NearbyIndexRoute
   '/profile/': typeof ProfileIndexRoute
+  '/settings/': typeof SettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/gather': typeof GatherIndexRoute
   '/nearby': typeof NearbyIndexRoute
   '/profile': typeof ProfileIndexRoute
+  '/settings': typeof SettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/gather/': typeof GatherIndexRoute
   '/nearby/': typeof NearbyIndexRoute
   '/profile/': typeof ProfileIndexRoute
+  '/settings/': typeof SettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/gather/'
     | '/nearby/'
     | '/profile/'
+    | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/gather'
     | '/nearby'
     | '/profile'
+    | '/settings'
   id:
     | '__root__'
     | '/'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/gather/'
     | '/nearby/'
     | '/profile/'
+    | '/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -301,6 +313,7 @@ export interface RootRouteChildren {
   GatherIndexRoute: typeof GatherIndexRoute
   NearbyIndexRoute: typeof NearbyIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -445,6 +458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/privacy': {
       id: '/settings/privacy'
       path: '/settings/privacy'
@@ -477,6 +497,7 @@ const rootRouteChildren: RootRouteChildren = {
   GatherIndexRoute: GatherIndexRoute,
   NearbyIndexRoute: NearbyIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

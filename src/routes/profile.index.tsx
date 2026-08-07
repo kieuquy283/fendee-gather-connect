@@ -52,7 +52,7 @@ function MyProfile() {
         title="Hồ sơ"
         right={
           <Link
-            to="/settings/privacy"
+            to="/settings"
             className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary"
             aria-label="Cài đặt"
           >
@@ -167,6 +167,7 @@ function MyProfile() {
           { to: "/friends", icon: Users, label: "Danh sách bạn bè", meta: String(me.friends) },
           { to: "/notifications", icon: Bell, label: "Thông báo", meta: "2 mới" },
           { to: "/widgets", icon: LayoutGrid, label: "Widget màn hình chính", meta: "" },
+          { to: "/settings", icon: Settings, label: "Cài đặt", meta: "" },
           { to: "/settings/privacy", icon: Eye, label: "Quyền riêng tư & an toàn", meta: "" },
         ].map((r) => {
           const Icon = r.icon;
