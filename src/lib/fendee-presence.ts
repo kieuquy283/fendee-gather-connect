@@ -259,3 +259,22 @@ export const stationFilters = [
 ];
 
 export const presenceDurations = ["30 phút", "1 giờ", "2 giờ", "Giờ tự chọn"];
+
+// --- Nearby: relative proximity visualization (NOT a map) ---
+// x/y are relative percentages inside the 100m frame, purely spatial hints.
+export type NearbyMarker = {
+  id: string;
+  x: number;
+  y: number;
+  meters: number;
+  place: string;
+};
+
+export const nearbyMarkers: NearbyMarker[] = [
+  { id: "hailang", x: 30, y: 26, meters: 15, place: "The Coffee House Thái Hà" },
+  { id: "minhtu", x: 70, y: 34, meters: 40, place: "The Coffee House Thái Hà" },
+  { id: "gialong", x: 22, y: 68, meters: 65, place: "Vỉa hè Thái Hà" },
+  { id: "hoanglan", x: 76, y: 72, meters: 90, place: "Thư viện Láng Hạ" },
+];
+
+export const nearbyFar = ["tuananh", "khanhvy"];
