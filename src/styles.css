@@ -157,3 +157,16 @@
     letter-spacing: -0.02em;
   }
 }
+
+@keyframes fendee-radar-sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility radar-sweep {
+  animation: fendee-radar-sweep 4s linear infinite;
+}
