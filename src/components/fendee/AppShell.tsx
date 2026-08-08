@@ -1,12 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Home, MapPin, Users, MessageCircle, User, Plus } from "lucide-react";
+import { Home, MapPin, Users, MessageCircle, User, Plus, Radar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { to: "/home", label: "Home", icon: Home },
-  { to: "/tram", label: "Trạm", icon: MapPin },
+  { to: "/nearby", label: "Nearby", icon: Radar },
   { to: "/gather", label: "Gather", icon: Users, center: true },
+  { to: "/tram", label: "Trạm", icon: MapPin },
   { to: "/chat", label: "Tin nhắn", icon: MessageCircle },
   { to: "/profile", label: "Profile", icon: User },
 ];
