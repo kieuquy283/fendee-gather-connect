@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, Users, HandHeart, HelpCircle, Heart } from "lucide-react";
 import { Ava, Chip } from "./ui";
-import { getPerson, type Gather, type Person, type StatusPost } from "@/lib/fendee-data";
+import { getPerson, me, type Person, type StatusPost } from "@/lib/fendee-data";
+import type { Gather } from "@/lib/gather-store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -66,15 +67,16 @@ export function StatusCard({ post }: { post: StatusPost }) {
 }
 
 export function GatherCard({ gather }: { gather: Gather }) {
-  const host = getPerson(gather.hostId)!;
-  const expired = gather.status === "expired";
+  const host = gather.ownerId === me.id ? me : getPerson(gather.ownerId)!;
+  const inactive = gather.status !== "live";
+  const going = gather.invites.filter((invite) => invite.status === "going").length;
   return (
     <Link
       to="/gather/$id"
       params={{ id: gather.id }}
       className={cn(
         "block rounded-3xl border border-border/70 bg-card p-4 shadow-card transition-transform active:scale-[0.99]",
-        expired && "opacity-60",
+        inactive && "opacity-60",
       )}
     >
       <div className="flex items-center gap-3">
@@ -85,8 +87,12 @@ export function GatherCard({ gather }: { gather: Gather }) {
             {host.name} · {gather.distance}
           </p>
         </div>
-        <Chip tone={expired ? "outline" : "accent"}>
-          {expired ? "Đã hết hạn" : gather.startsIn}
+        <Chip tone={inactive ? "outline" : "accent"}>
+          {gather.status === "expired"
+            ? "Đã hết hạn"
+            : gather.status === "ended"
+              ? "Đã kết thúc"
+              : gather.startsIn}
         </Chip>
       </div>
       <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{gather.note}</p>
@@ -101,7 +107,7 @@ export function GatherCard({ gather }: { gather: Gather }) {
         </span>
         <span className="inline-flex items-center gap-1">
           <Users className="h-3 w-3 text-primary" />
-          {gather.joined.length}/{gather.slots}
+          {going}/{gather.slots}
         </span>
       </div>
     </Link>

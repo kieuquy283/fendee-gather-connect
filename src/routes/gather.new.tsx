@@ -1,26 +1,31 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Check, Clock, Lock, MapPin, Users, Globe2, ChevronRight } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { ChevronRight, Clock, MapPin } from "lucide-react";
 import { AppShell } from "@/components/fendee/AppShell";
-import { Ava, Chip, TopBar } from "@/components/fendee/ui";
-import { people } from "@/lib/fendee-data";
+import { Chip, TopBar } from "@/components/fendee/ui";
+import {
+  GatherAudienceSelector,
+  GatherCoHostSelector,
+  GatherPrivacyPreview,
+  GatherSelectionSummary,
+} from "@/components/fendee/gather-v2";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { blankGatherSelection, useGatherStore } from "@/lib/gather-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/gather/new")({
   head: () => ({
     meta: [
-      { title: "Tạo Gather trong 15 giây — Fendee" },
+      { title: "Tạo Gather trong 15 giây - Fendee" },
       {
         name: "description",
-        content:
-          "Chọn người nhận, chọn thời lượng và gửi lời mời gặp mặt. Gather tự hết hạn, không lưu vị trí sau khi kết thúc.",
+        content: "Chọn co-host riêng với người được mời, chọn thời lượng và gửi lời mời Gather.",
       },
-      { property: "og:title", content: "Tạo Gather — Fendee" },
-      { property: "og:description", content: "Rủ bạn gặp mặt chỉ trong ba bước." },
+      { property: "og:title", content: "Tạo Gather - Fendee" },
+      { property: "og:description", content: "Rủ bạn gặp mặt với co-host và invite riêng." },
     ],
   }),
   component: NewGather,
@@ -28,26 +33,68 @@ export const Route = createFileRoute("/gather/new")({
 
 const durations = ["30 phút", "1 giờ", "2 giờ", "3 giờ"];
 
+function expiryLabel(duration: string) {
+  const minutes = duration.includes("30")
+    ? 30
+    : duration.includes("3")
+      ? 180
+      : duration.includes("2")
+        ? 120
+        : 60;
+  return `đến ${new Date(Date.now() + minutes * 60 * 1000).toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+}
+
 function NewGather() {
+  const navigate = useNavigate();
+  const store = useGatherStore();
   const [step, setStep] = useState(0);
-  const [audience, setAudience] = useState<"friends" | "public" | "selected">("friends");
-  const [selected, setSelected] = useState<string[]>([]);
+  const [cohosts, setCohosts] = useState(blankGatherSelection);
+  const [invites, setInvites] = useState(blankGatherSelection);
   const [duration, setDuration] = useState("1 giờ");
   const [title, setTitle] = useState("Cà phê làm việc chung");
   const [note, setNote] = useState("Mình ngồi tầng 2, ai rảnh qua ngồi cho vui.");
+  const [place, setPlace] = useState("The Coffee House Thái Hà");
+  const [error, setError] = useState<string | null>(null);
 
-  const friends = people.filter((p) => p.isFriend);
-  const steps = ["Nội dung", "Người nhận", "Thời lượng", "Xem trước"];
+  const steps = ["Nội dung", "Người", "Thời lượng", "Xem trước"];
+  const cohostResolution = useMemo(() => store.resolveAudience(cohosts), [store, cohosts]);
+  const inviteResolution = useMemo(() => store.resolveAudience(invites), [store, invites]);
+  const canContinue =
+    step === 0
+      ? Boolean(title.trim() && place.trim())
+      : step === 1
+        ? inviteResolution.resolvedRecipientIds.length > 0
+        : true;
+
+  const publish = () => {
+    setError(null);
+    try {
+      const id = store.createGather({
+        title,
+        note,
+        place,
+        duration,
+        cohostSelection: cohosts,
+        inviteSelection: invites,
+      });
+      navigate({ to: "/gather/$id", params: { id } });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Không thể gửi Gather.");
+    }
+  };
 
   return (
     <AppShell>
       <TopBar title="Tạo Gather" subtitle={`Bước ${step + 1}/4 · ${steps[step]}`} back="/gather" />
 
       <div className="mb-5 flex gap-1.5">
-        {steps.map((_, i) => (
+        {steps.map((_, index) => (
           <span
-            key={i}
-            className={cn("h-1 flex-1 rounded-full", i <= step ? "bg-primary" : "bg-border")}
+            key={index}
+            className={cn("h-1 flex-1 rounded-full", index <= step ? "bg-primary" : "bg-border")}
           />
         ))}
       </div>
@@ -55,115 +102,83 @@ function NewGather() {
       {step === 0 && (
         <section className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="t">Bạn muốn rủ làm gì?</Label>
+            <Label htmlFor="title">Bạn muốn rủ làm gì?</Label>
             <Input
-              id="t"
+              id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(event) => setTitle(event.target.value)}
               className="h-12 rounded-2xl"
             />
           </div>
           <div className="flex flex-wrap gap-2">
-            {["Cà phê", "Đi bộ", "Ăn trưa", "Học chung", "Board game"].map((q) => (
-              <button key={q} onClick={() => setTitle(q)}>
+            {["Cà phê", "Đi bộ", "Ăn trưa", "Học chung", "Board game"].map((quickTitle) => (
+              <button key={quickTitle} type="button" onClick={() => setTitle(quickTitle)}>
                 <Chip tone="outline" className="px-3 py-1.5 text-xs">
-                  {q}
+                  {quickTitle}
                 </Chip>
               </button>
             ))}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="n">Ghi chú ngắn</Label>
+            <Label htmlFor="note">Ghi chú ngắn</Label>
             <Textarea
-              id="n"
+              id="note"
               rows={3}
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={(event) => setNote(event.target.value)}
               className="rounded-2xl"
             />
           </div>
-          <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface-2 px-4 py-3">
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 rounded-2xl border border-border bg-surface-2 px-4 py-3 text-left"
+          >
             <MapPin className="h-4 w-4 shrink-0 text-primary" />
-            <div className="flex-1">
-              <p className="text-sm font-medium">The Coffee House Nguyễn Du</p>
-              <p className="text-[11px] text-muted-foreground">
-                Địa điểm chỉ hiện với người bạn mời
-              </p>
-            </div>
+            <span className="flex-1">
+              <span className="block text-sm font-medium">{place}</span>
+              <span className="block text-[11px] text-muted-foreground">
+                Địa điểm chỉ hiện đầy đủ trong app cho người được mời.
+              </span>
+            </span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          </div>
+          </button>
+          <Input
+            value={place}
+            onChange={(event) => setPlace(event.target.value)}
+            className="h-11 rounded-2xl"
+            aria-label="Địa điểm Gather"
+          />
         </section>
       )}
 
       {step === 1 && (
-        <section className="space-y-3">
-          {(
-            [
-              ["friends", "Tất cả bạn bè", "142 người bạn sẽ thấy lời mời", Users],
-              ["selected", "Chọn từng người", "Chỉ những người bạn tick", Lock],
-              ["public", "Công khai quanh đây", "Người đang Public trong 3km", Globe2],
-            ] as const
-          ).map(([key, title2, sub, Icon]) => (
-            <button
-              key={key}
-              onClick={() => setAudience(key)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-colors",
-                audience === key ? "border-primary bg-accent/40" : "border-border bg-card",
-              )}
-            >
-              <Icon className="h-5 w-5 shrink-0 text-primary" />
-              <div className="flex-1">
-                <p className="text-sm font-semibold">{title2}</p>
-                <p className="text-[11px] text-muted-foreground">{sub}</p>
-              </div>
-              {audience === key && <Check className="h-4 w-4 text-primary" />}
-            </button>
-          ))}
-
-          {audience === "selected" && (
-            <ul className="space-y-2 pt-1">
-              {friends.map((p) => {
-                const on = selected.includes(p.id);
-                return (
-                  <li key={p.id}>
-                    <button
-                      onClick={() =>
-                        setSelected((s) => (on ? s.filter((x) => x !== p.id) : [...s, p.id]))
-                      }
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-2xl border p-3 text-left",
-                        on ? "border-primary bg-accent/40" : "border-border bg-card",
-                      )}
-                    >
-                      <Ava src={p.avatar} alt={p.name} size={40} online={p.online} />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold">{p.name}</p>
-                        <p className="truncate text-[11px] text-muted-foreground">{p.distance}</p>
-                      </div>
-                      <span
-                        className={cn(
-                          "flex h-5 w-5 items-center justify-center rounded-full border",
-                          on
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border",
-                        )}
-                      >
-                        {on && <Check className="h-3 w-3" />}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          {audience === "public" && (
-            <p className="rounded-2xl bg-accent/40 p-3 text-[11px] text-muted-foreground">
-              Chế độ công khai chỉ hiển thị tên, ảnh và khoảng cách tương đối của bạn. Địa điểm chi
-              tiết chỉ mở khi bạn duyệt người tham gia.
-            </p>
-          )}
+        <section className="space-y-4">
+          <GatherCoHostSelector
+            friends={store.friends}
+            groups={store.groups}
+            value={cohosts}
+            onChange={setCohosts}
+          />
+          <GatherAudienceSelector
+            friends={store.friends}
+            groups={store.groups}
+            value={invites}
+            onChange={setInvites}
+          />
+          <GatherSelectionSummary
+            title="Tóm tắt co-host"
+            selection={cohosts}
+            groups={store.groups}
+            friends={store.friends}
+            resolvedCount={cohostResolution.resolvedRecipientIds.length}
+          />
+          <GatherSelectionSummary
+            title="Tóm tắt người được mời"
+            selection={invites}
+            groups={store.groups}
+            friends={store.friends}
+            resolvedCount={inviteResolution.resolvedRecipientIds.length}
+          />
         </section>
       )}
 
@@ -171,57 +186,62 @@ function NewGather() {
         <section className="space-y-4">
           <Label>Gather kéo dài bao lâu?</Label>
           <div className="grid grid-cols-2 gap-3">
-            {durations.map((d) => (
+            {durations.map((item) => (
               <button
-                key={d}
-                onClick={() => setDuration(d)}
+                key={item}
+                type="button"
+                onClick={() => setDuration(item)}
                 className={cn(
                   "rounded-2xl border p-4 text-center",
-                  duration === d ? "border-primary bg-accent/40" : "border-border bg-card",
+                  duration === item ? "border-primary bg-accent/40" : "border-border bg-card",
                 )}
               >
                 <Clock className="mx-auto mb-1.5 h-5 w-5 text-primary" />
-                <p className="text-sm font-semibold">{d}</p>
+                <p className="text-sm font-semibold">{item}</p>
               </button>
             ))}
           </div>
           <div className="rounded-2xl border border-border bg-surface-2 p-4">
             <p className="text-sm font-medium">Tự động hết hạn</p>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              Sau {duration}, lời mời biến mất khỏi feed và vị trí kèm theo bị xoá. Không ai xem lại
-              được lịch sử.
+              Sau {duration}, Gather không nhận RSVP mới và không còn hiện là Gather đang mở.
             </p>
           </div>
         </section>
       )}
 
       {step === 3 && (
-        <section className="space-y-4">
-          <article className="rounded-3xl border border-border/70 bg-card p-4 shadow-card">
-            <Chip tone="accent">Xem trước</Chip>
-            <h2 className="mt-3 text-lg font-semibold">{title}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{note}</p>
-            <div className="mt-4 space-y-2 text-xs text-muted-foreground">
-              <p className="flex items-center gap-2">
-                <MapPin className="h-3.5 w-3.5 text-primary" /> The Coffee House Nguyễn Du
-              </p>
-              <p className="flex items-center gap-2">
-                <Clock className="h-3.5 w-3.5 text-primary" /> {duration} · hết hạn tự động
-              </p>
-              <p className="flex items-center gap-2">
-                <Users className="h-3.5 w-3.5 text-primary" />
-                {audience === "friends"
-                  ? "Tất cả bạn bè"
-                  : audience === "public"
-                    ? "Công khai trong 3km"
-                    : `${selected.length} người được chọn`}
-              </p>
-            </div>
-          </article>
-          <p className="text-center text-[11px] text-muted-foreground">
-            Bạn có thể huỷ Gather bất cứ lúc nào — người nhận sẽ được báo ngay.
-          </p>
-        </section>
+        <GatherPrivacyPreview
+          title={title}
+          note={note}
+          place={place}
+          duration={duration}
+          expiryLabel={expiryLabel(duration)}
+          cohostCount={cohostResolution.resolvedRecipientIds.length}
+          inviteCount={inviteResolution.resolvedRecipientIds.length}
+          cohostSummary={
+            <GatherSelectionSummary
+              title="Co-host invitations"
+              selection={cohosts}
+              groups={store.groups}
+              friends={store.friends}
+              resolvedCount={cohostResolution.resolvedRecipientIds.length}
+            />
+          }
+          inviteSummary={
+            <GatherSelectionSummary
+              title="Gather invitations"
+              selection={invites}
+              groups={store.groups}
+              friends={store.friends}
+              resolvedCount={inviteResolution.resolvedRecipientIds.length}
+            />
+          }
+        />
+      )}
+
+      {error && (
+        <p className="mt-4 rounded-2xl bg-warn/10 p-3 text-xs text-warn-foreground">{error}</p>
       )}
 
       <div className="mb-4 mt-8 flex gap-3">
@@ -236,14 +256,17 @@ function NewGather() {
           </Button>
         )}
         {step < 3 ? (
-          <Button size="lg" className="flex-1 rounded-full" onClick={() => setStep(step + 1)}>
+          <Button
+            size="lg"
+            className="flex-1 rounded-full"
+            disabled={!canContinue}
+            onClick={() => setStep(step + 1)}
+          >
             Tiếp tục
           </Button>
         ) : (
-          <Button size="lg" className="flex-1 rounded-full" asChild>
-            <Link to="/gather/$id" params={{ id: "g1" }}>
-              Gửi Gather
-            </Link>
+          <Button size="lg" className="flex-1 rounded-full" onClick={publish}>
+            Gửi Gather
           </Button>
         )}
       </div>

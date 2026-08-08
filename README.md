@@ -32,3 +32,14 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Gather V2 Product Model
+
+Gather has two separate people models:
+
+- Co-hosts create and manage a Gather with the owner. The owner is always an accepted host. Invited co-hosts stay pending until they accept.
+- Invitees receive an invitation to attend. Their RSVP is tracked separately as sent, seen, going, maybe, or declined.
+
+The creation flow remains four steps: content/place, people, duration, and privacy preview. The people step is split into `Cung tao Gather` and `Moi tham gia`. Invitation audiences are resolved to an immutable recipient snapshot at send time, with duplicate recipients and blocked users removed.
+
+Owner and co-host permissions are enforced in the Gather domain store, not only through hidden UI. Expired or ended Gathers stop accepting new RSVP and no longer display as active.

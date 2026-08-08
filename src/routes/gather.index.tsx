@@ -4,18 +4,17 @@ import { CalendarClock, Plus } from "lucide-react";
 import { AppShell } from "@/components/fendee/AppShell";
 import { GatherCard } from "@/components/fendee/cards";
 import { EmptyState, TopBar } from "@/components/fendee/ui";
-import { gathers } from "@/lib/fendee-data";
+import { useGatherStore } from "@/lib/gather-store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/gather/")({
   head: () => ({
     meta: [
-      { title: "Gather — Lời mời gặp mặt của bạn | Fendee" },
+      { title: "Gather - Lời mời gặp mặt của bạn | Fendee" },
       {
         name: "description",
-        content:
-          "Quản lý các Gather bạn tạo và được mời. Mỗi lời mời tự hết hạn theo thời lượng bạn chọn.",
+        content: "Quản lý Gather bạn tạo, cùng tạo và được mời. Mỗi lời mời có RSVP và tự hết hạn.",
       },
       { property: "og:title", content: "Gather trên Fendee" },
       { property: "og:description", content: "Rủ bạn bè gặp nhau, lời mời tự hết hạn." },
@@ -25,10 +24,19 @@ export const Route = createFileRoute("/gather/")({
 });
 
 function GatherList() {
+  const store = useGatherStore();
   const [tab, setTab] = useState<"live" | "mine" | "expired">("live");
-  const list = gathers.filter((g) =>
-    tab === "expired" ? g.status === "expired" : tab === "mine" ? false : g.status === "live",
-  );
+  const list = store.gathers.filter((gather) => {
+    const isMine =
+      gather.ownerId === store.currentUserId ||
+      gather.hosts.some(
+        (host) => host.personId === store.currentUserId && host.cohostStatus !== "declined",
+      );
+
+    if (tab === "expired") return gather.status !== "live";
+    if (tab === "mine") return isMine && gather.status === "live";
+    return gather.status === "live";
+  });
 
   return (
     <AppShell>
@@ -53,13 +61,15 @@ function GatherList() {
             ["mine", "Của tôi"],
             ["expired", "Đã hết hạn"],
           ] as const
-        ).map(([k, label]) => (
+        ).map(([key, label]) => (
           <button
-            key={k}
-            onClick={() => setTab(k)}
+            key={key}
+            type="button"
+            data-testid={`gather-tab-${key}`}
+            onClick={() => setTab(key)}
             className={cn(
               "rounded-full py-2 text-[13px] font-medium transition-colors",
-              tab === k ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+              tab === key ? "bg-primary text-primary-foreground" : "text-muted-foreground",
             )}
           >
             {label}
@@ -69,12 +79,12 @@ function GatherList() {
 
       <div className="mt-4 space-y-3">
         {list.length ? (
-          list.map((g) => <GatherCard key={g.id} gather={g} />)
+          list.map((gather) => <GatherCard key={gather.id} gather={gather} />)
         ) : (
           <EmptyState
             icon={<CalendarClock className="h-6 w-6" />}
-            title="Bạn chưa tạo Gather nào"
-            body="Một Gather chỉ mất 15 giây: chọn người, chọn thời lượng, gửi. Hết giờ là lời mời tự biến mất."
+            title={tab === "mine" ? "Bạn chưa quản lý Gather nào" : "Chưa có Gather phù hợp"}
+            body="Tạo Gather, chọn co-host riêng với người được mời, rồi gửi lời mời có thời hạn."
             action={
               <Button className="rounded-full" asChild>
                 <Link to="/gather/new">Tạo Gather đầu tiên</Link>
@@ -86,7 +96,7 @@ function GatherList() {
 
       {tab === "expired" && list.length > 0 && (
         <p className="mt-4 text-center text-[11px] text-muted-foreground">
-          Gather hết hạn sẽ tự xoá vị trí kèm theo sau 24 giờ.
+          Gather hết hạn không còn nhận RSVP mới và chỉ giữ thông tin lịch sử được phép.
         </p>
       )}
       <div className="h-4" />

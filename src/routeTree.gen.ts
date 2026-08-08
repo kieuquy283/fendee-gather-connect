@@ -31,6 +31,7 @@ import { Route as ProfileIndexRouteImport } from './routes/profile.index'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
+import { Route as GatherIdManageRouteImport } from './routes/gather.$id_.manage'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -142,6 +143,11 @@ const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
   path: '/settings/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GatherIdManageRoute = GatherIdManageRouteImport.update({
+  id: '/gather/$id_/manage',
+  path: '/gather/$id/manage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/nearby/': typeof NearbyIndexRoute
   '/profile/': typeof ProfileIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/gather/$id/manage': typeof GatherIdManageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/nearby': typeof NearbyIndexRoute
   '/profile': typeof ProfileIndexRoute
   '/settings': typeof SettingsIndexRoute
+  '/gather/$id/manage': typeof GatherIdManageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/nearby/': typeof NearbyIndexRoute
   '/profile/': typeof ProfileIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/gather/$id_/manage': typeof GatherIdManageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/nearby/'
     | '/profile/'
     | '/settings/'
+    | '/gather/$id/manage'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
     | '/nearby'
     | '/profile'
     | '/settings'
+    | '/gather/$id/manage'
   id:
     | '__root__'
     | '/'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/nearby/'
     | '/profile/'
     | '/settings/'
+    | '/gather/$id_/manage'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -314,6 +326,7 @@ export interface RootRouteChildren {
   NearbyIndexRoute: typeof NearbyIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
+  GatherIdManageRoute: typeof GatherIdManageRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -472,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsPrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gather/$id_/manage': {
+      id: '/gather/$id_/manage'
+      path: '/gather/$id/manage'
+      fullPath: '/gather/$id/manage'
+      preLoaderRoute: typeof GatherIdManageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -498,6 +518,7 @@ const rootRouteChildren: RootRouteChildren = {
   NearbyIndexRoute: NearbyIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
+  GatherIdManageRoute: GatherIdManageRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
