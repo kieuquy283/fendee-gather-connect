@@ -24,7 +24,10 @@ export function NearbyRadar({
         <span className="absolute h-[92%] w-[92%] rounded-full border border-primary/12 bg-primary/[0.03]" />
         <span className="absolute h-[62%] w-[62%] rounded-full border border-primary/16 bg-primary/[0.05]" />
         <span className="absolute h-[32%] w-[32%] rounded-full border border-primary/25 bg-primary/[0.07]" />
+        {/* radar sweep */}
+        <span className="radar-sweep absolute h-[92%] w-[92%] rounded-full [background:conic-gradient(from_0deg,transparent_0deg,transparent_300deg,color-mix(in_oklab,var(--color-primary)_28%,transparent)_355deg,transparent_360deg)]" />
       </div>
+
 
       <span className="absolute left-4 top-4 rounded-full bg-card/80 px-2.5 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur">
         Bán kính ~100m · vị trí tương đối
