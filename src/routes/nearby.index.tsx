@@ -1,42 +1,48 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { EyeOff, MapPin, ShieldCheck, SlidersHorizontal, Users } from "lucide-react";
+import { EyeOff, MapPin, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "@/components/fendee/AppShell";
-import { PersonCard } from "@/components/fendee/cards";
-import { Chip, EmptyState, TopBar } from "@/components/fendee/ui";
-import { people } from "@/lib/fendee-data";
+import { EmptyState, SectionTitle, TopBar } from "@/components/fendee/ui";
+import { PresenceCard, PresenceLegend, PresenceRail } from "@/components/fendee/presence";
+import { NearbyRadar, NearbyMarkerSheet, type NearbyPick } from "@/components/fendee/nearby-radar";
+import { QuickPreview } from "@/components/fendee/sheets";
+import { getPresence, nearbyFar, nearbyMarkers, type PresencePerson } from "@/lib/fendee-presence";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/nearby/")({
   head: () => ({
     meta: [
-      { title: "Nearby — Khám phá người đang Public quanh bạn | Fendee" },
+      { title: "Nearby — Người đang ở quanh bạn trong 100m | Fendee" },
       {
         name: "description",
         content:
-          "Xem người đang bật chế độ Public gần bạn theo khoảng cách tương đối. Fendee không bao giờ hiển thị toạ độ chính xác cho người lạ.",
+          "Khung Nearby của Fendee hiển thị vị trí tương đối của người quanh bạn trong bán kính 100m — không bản đồ, không toạ độ, chỉ khoảng cách ước lượng.",
       },
       { property: "og:title", content: "Nearby trên Fendee" },
-      { property: "og:description", content: "Khám phá người phù hợp đang ở gần bạn." },
+      {
+        property: "og:description",
+        content: "Khung hiển thị vị trí tương đối trong 100m, không phải bản đồ.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Nearby,
 });
 
 function Nearby() {
-  const [enabled, setEnabled] = useState(false);
-  const [permission, setPermission] = useState<"granted" | "denied">("granted");
-  const [tab, setTab] = useState<"all" | "friends">("all");
+  const [enabled, setEnabled] = useState(true);
+  const [pick, setPick] = useState<NearbyPick | null>(null);
+  const [preview, setPreview] = useState<PresencePerson | null>(null);
 
-  const list = people.filter((p) => (tab === "friends" ? p.isFriend : p.visibility === "public"));
+  const farPeople = nearbyFar.map(getPresence).filter(Boolean) as PresencePerson[];
 
   return (
     <AppShell>
       <TopBar
         title="Nearby"
-        subtitle="Chỉ hiện khoảng cách tương đối"
+        subtitle="Vị trí tương đối · không bản đồ"
         right={
           <Link
             to="/nearby/filters"
@@ -63,25 +69,12 @@ function Nearby() {
         <Switch checked={enabled} onCheckedChange={setEnabled} />
       </div>
 
-      {permission === "denied" && (
-        <div className="mt-3 rounded-3xl border border-primary/30 bg-accent/50 p-4">
-          <p className="text-sm font-semibold">Fendee chưa có quyền vị trí</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Bật quyền vị trí trong Cài đặt hệ thống để dùng Nearby. Fendee chỉ đọc vị trí khi bạn mở
-            màn hình này.
-          </p>
-          <Button size="sm" className="mt-3 rounded-full" onClick={() => setPermission("granted")}>
-            Mở cài đặt quyền
-          </Button>
-        </div>
-      )}
-
       {!enabled ? (
         <div className="mt-4 space-y-3">
           <EmptyState
             icon={<EyeOff className="h-6 w-6" />}
             title="Nearby đang tắt"
-            body="Khi tắt, không ai thấy bạn trong danh sách quanh đây và bạn cũng không thấy người khác. Bật lên để khám phá — tắt lại bất cứ lúc nào."
+            body="Khi tắt, không ai thấy bạn trong khung quanh đây và bạn cũng không thấy người khác. Bật lên để khám phá — tắt lại bất cứ lúc nào."
             action={
               <Button className="rounded-full" onClick={() => setEnabled(true)}>
                 Bật Nearby
@@ -92,56 +85,52 @@ function Nearby() {
             “Ẩn khỏi Nearby” không đồng nghĩa với “Ẩn danh” — hồ sơ của bạn vẫn có tên thật với bạn
             bè.
           </p>
-          <Button variant="ghost" className="w-full rounded-full" onClick={() => setPermission("denied")}>
-            Xem trạng thái chưa cấp quyền
-          </Button>
         </div>
       ) : (
         <>
-          <div className="mt-4 grid grid-cols-2 gap-1 rounded-full bg-secondary p-1">
-            {(["all", "friends"] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={cn(
-                  "rounded-full py-2 text-sm font-medium transition-colors",
-                  tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground",
-                )}
-              >
-                {t === "all" ? "Đang Public" : "Bạn bè"}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Chip tone="accent">Trong 3km</Chip>
-            <Chip tone="outline">Sở thích chung</Chip>
-            <Chip tone="outline">Đang online</Chip>
-          </div>
-
-          <div className="mt-4 space-y-3">
-            {list.length ? (
-              list.map((p) => <PersonCard key={p.id} person={p} />)
+          <section className="mt-4">
+            <SectionTitle>Quanh bạn · 100m</SectionTitle>
+            {nearbyMarkers.length ? (
+              <>
+                <NearbyRadar markers={nearbyMarkers} onPick={setPick} />
+                <PresenceLegend />
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Vị trí trong khung chỉ mang tính tương đối để bạn hình dung ai đang gần hơn.
+                </p>
+              </>
             ) : (
               <EmptyState
-                icon={<Users className="h-6 w-6" />}
-                title="Chưa có ai quanh đây"
-                body="Chưa có người nào bật Public trong bán kính bạn chọn. Thử mở rộng khoảng cách trong bộ lọc."
+                icon={<MapPin className="h-6 w-6" />}
+                title="Chưa có ai trong 100m"
+                body="Chưa ai bật hiện diện quanh đây. Bạn có thể tạo Gather để rủ bạn bè tới."
                 action={
-                  <Button variant="secondary" className="rounded-full" asChild>
-                    <Link to="/nearby/filters">Chỉnh bộ lọc</Link>
+                  <Button className="rounded-full" asChild>
+                    <Link to="/gather/new">Tạo Gather</Link>
                   </Button>
                 }
               />
             )}
-          </div>
+          </section>
+
+          <section className="mt-6">
+            <SectionTitle>Bạn bè ở xa hơn</SectionTitle>
+            <PresenceRail people={farPeople} onPick={setPreview} />
+            <div className="mt-3 space-y-3">
+              {farPeople.map((p) => (
+                <PresenceCard key={p.id} person={p} onPreview={setPreview} />
+              ))}
+            </div>
+          </section>
 
           <p className="mb-4 mt-6 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
-            Người lạ chỉ thấy khoảng cách làm tròn, không thấy toạ độ hay địa chỉ của bạn.
+            Người lạ chỉ thấy khoảng cách ước lượng, không thấy toạ độ hay địa chỉ của bạn.
           </p>
         </>
       )}
+
+      <NearbyMarkerSheet pick={pick} onOpenChange={(v) => !v && setPick(null)} />
+      <QuickPreview person={preview} onOpenChange={(v) => !v && setPreview(null)} />
     </AppShell>
   );
 }
