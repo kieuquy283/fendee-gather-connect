@@ -144,7 +144,9 @@ function NewGather() {
                       <span
                         className={cn(
                           "flex h-5 w-5 items-center justify-center rounded-full border",
-                          on ? "border-primary bg-primary text-primary-foreground" : "border-border",
+                          on
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border",
                         )}
                       >
                         {on && <Check className="h-3 w-3" />}

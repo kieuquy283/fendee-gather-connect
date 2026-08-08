@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, UserPlus, Users } from "lucide-react";
 import { AppShell } from "@/components/fendee/AppShell";
 import { Ava, EmptyState, TopBar } from "@/components/fendee/ui";
+import { NearbySection } from "@/components/fendee/nearby-canvas";
 import { me, people } from "@/lib/fendee-data";
+import { groupPeopleByNearby } from "@/lib/nearby-spatial";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -22,7 +24,8 @@ export const Route = createFileRoute("/friends/")({
 });
 
 function FriendsList() {
-  const friends = people.filter((p) => p.isFriend);
+  const { nearbyUsers, fartherFriends } = groupPeopleByNearby(people);
+
   return (
     <AppShell>
       <TopBar
@@ -59,28 +62,44 @@ function FriendsList() {
         <Input placeholder="Tìm trong bạn bè..." className="h-11 rounded-2xl pl-10" />
       </div>
 
-      <ul className="mt-4 space-y-1">
-        {friends.map((p) => (
-          <li key={p.id}>
-            <Link
-              to="/profile/$id"
-              params={{ id: p.id }}
-              className="flex items-center gap-3 rounded-2xl px-2 py-3 transition-colors hover:bg-secondary"
-            >
-              <Ava src={p.avatar} alt={p.name} size={46} online={p.online} />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{p.name}</p>
-                <p className="truncate text-[11px] text-muted-foreground">
-                  {p.online ? `${p.distance} · ${p.place}` : "Đang ẩn vị trí"}
-                </p>
-              </div>
-              <Button size="sm" variant="secondary" className="rounded-full" asChild>
-                <span>Rủ gặp</span>
-              </Button>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <NearbySection users={nearbyUsers} />
+
+      <section className="mt-6">
+        <div className="mb-2.5 flex items-end justify-between">
+          <div>
+            <h2 className="text-base font-semibold">Friends</h2>
+            <p className="text-xs text-muted-foreground">Farther than 100m or location hidden</p>
+          </div>
+          <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-secondary-foreground">
+            {fartherFriends.length}
+          </span>
+        </div>
+
+        <ul className="space-y-1">
+          {fartherFriends.map((p) => (
+            <li key={p.id}>
+              <Link
+                to="/profile/$id"
+                params={{ id: p.id }}
+                className="flex items-center gap-3 rounded-2xl px-2 py-3 transition-colors hover:bg-secondary"
+              >
+                <Ava src={p.avatar} alt={p.name} size={46} online={p.online} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{p.name}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {p.online && p.visibility !== "hidden"
+                      ? `${p.distance} · ${p.place}`
+                      : "Đang ẩn vị trí"}
+                  </p>
+                </div>
+                <Button size="sm" variant="secondary" className="rounded-full" asChild>
+                  <span>Rủ gặp</span>
+                </Button>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <div className="mt-6">
         <EmptyState

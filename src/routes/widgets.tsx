@@ -13,7 +13,10 @@ export const Route = createFileRoute("/widgets")({
           "Widget Fendee là giao diện thu nhỏ để xem Trạm hiện tại, bạn bè đang hiện diện, người đáng chú ý và Gather đang mở.",
       },
       { property: "og:title", content: "Widget Fendee" },
-      { property: "og:description", content: "Bản thu nhỏ của Fendee: không bản đồ, không tọa độ." },
+      {
+        property: "og:description",
+        content: "Bản thu nhỏ của Fendee: không bản đồ, không tọa độ.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

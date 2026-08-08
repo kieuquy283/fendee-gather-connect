@@ -85,8 +85,7 @@ function Onboarding() {
           </Button>
         )}
         <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-          <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Privacy-first · bạn kiểm soát mọi
-          thứ
+          <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Privacy-first · bạn kiểm soát mọi thứ
         </p>
       </div>
     </div>

@@ -16,7 +16,10 @@ export const Route = createFileRoute("/chat/$id")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Cuộc trò chuyện không tồn tại — Fendee" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Cuộc trò chuyện không tồn tại — Fendee" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
     const name = getPerson(loaderData.convo.personId)?.name ?? "Bạn bè";
@@ -105,7 +108,12 @@ function ChatRoom() {
 
       <div className="fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] -translate-x-1/2 border-t border-border/70 bg-background/95 px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="secondary" className="h-11 w-11 shrink-0 rounded-full" asChild>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-11 w-11 shrink-0 rounded-full"
+            asChild
+          >
             <Link to="/gather/new" aria-label="Tạo Gather">
               <Plus className="h-4 w-4" />
             </Link>

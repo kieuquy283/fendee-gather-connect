@@ -54,7 +54,14 @@ function Filters() {
           <Label>Bán kính</Label>
           <span className="text-sm font-semibold text-primary">{radius[0]} km</span>
         </div>
-        <Slider value={radius} onValueChange={setRadius} min={1} max={10} step={1} className="mt-4" />
+        <Slider
+          value={radius}
+          onValueChange={setRadius}
+          min={1}
+          max={10}
+          step={1}
+          className="mt-4"
+        />
         <p className="mt-3 text-[11px] text-muted-foreground">
           Fendee luôn làm tròn khoảng cách. Người khác chỉ thấy “cách ~{radius[0]}km”, không thấy
           điểm bạn đang đứng.
@@ -69,9 +76,7 @@ function Filters() {
             return (
               <button
                 key={i}
-                onClick={() =>
-                  setPicked((p) => (on ? p.filter((x) => x !== i) : [...p, i]))
-                }
+                onClick={() => setPicked((p) => (on ? p.filter((x) => x !== i) : [...p, i]))}
               >
                 <Chip
                   tone={on ? "accent" : "outline"}

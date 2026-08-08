@@ -26,13 +26,7 @@ export const presenceLabel: Record<PresenceState, string> = {
   stale: "Trạng thái cũ",
 };
 
-export function PresenceAva({
-  person,
-  size = 56,
-}: {
-  person: PresencePerson;
-  size?: number;
-}) {
+export function PresenceAva({ person, size = 56 }: { person: PresencePerson; size?: number }) {
   return (
     <span className="relative inline-block shrink-0" style={{ width: size, height: size }}>
       <img
@@ -41,7 +35,8 @@ export function PresenceAva({
         loading="lazy"
         className={cn(
           "h-full w-full rounded-full object-cover",
-          person.presence === "gather" && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+          person.presence === "gather" &&
+            "ring-2 ring-primary ring-offset-2 ring-offset-background",
           person.presence === "stale" && "opacity-60 grayscale",
         )}
       />

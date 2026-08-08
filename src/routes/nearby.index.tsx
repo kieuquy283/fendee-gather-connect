@@ -92,7 +92,11 @@ function Nearby() {
             “Ẩn khỏi Nearby” không đồng nghĩa với “Ẩn danh” — hồ sơ của bạn vẫn có tên thật với bạn
             bè.
           </p>
-          <Button variant="ghost" className="w-full rounded-full" onClick={() => setPermission("denied")}>
+          <Button
+            variant="ghost"
+            className="w-full rounded-full"
+            onClick={() => setPermission("denied")}
+          >
             Xem trạng thái chưa cấp quyền
           </Button>
         </div>

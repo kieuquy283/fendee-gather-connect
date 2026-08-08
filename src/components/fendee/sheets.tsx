@@ -110,7 +110,9 @@ export function AppearSheet({
             }
           }}
         >
-          {mode && duration ? `Bật ${mode === "public" ? "Public" : "Chỉ bạn bè"} · ${duration}` : "Chọn chế độ và thời hạn"}
+          {mode && duration
+            ? `Bật ${mode === "public" ? "Public" : "Chỉ bạn bè"} · ${duration}`
+            : "Chọn chế độ và thời hạn"}
         </Button>
         <p className="mt-2 flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
           <ShieldCheck className="h-3 w-3 text-primary" /> Bạn có thể tắt bất cứ lúc nào

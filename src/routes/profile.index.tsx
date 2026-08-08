@@ -38,7 +38,12 @@ export const Route = createFileRoute("/profile/")({
 });
 
 const options = [
-  { key: "public", label: "Mọi người", sub: "Ai ở gần cũng thấy khoảng cách tương đối", icon: Globe2 },
+  {
+    key: "public",
+    label: "Mọi người",
+    sub: "Ai ở gần cũng thấy khoảng cách tương đối",
+    icon: Globe2,
+  },
   { key: "friends", label: "Chỉ bạn bè", sub: "Mặc định — an toàn nhất", icon: Users },
   { key: "hidden", label: "Ẩn khỏi Nearby", sub: "Bạn vẫn xem được người khác", icon: EyeOff },
 ] as const;

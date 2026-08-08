@@ -1,6 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { Flag, HandHeart, HelpCircle, MapPin, MessageCircle, MoreHorizontal, ShieldAlert, UserPlus } from "lucide-react";
+import {
+  Flag,
+  HandHeart,
+  HelpCircle,
+  MapPin,
+  MessageCircle,
+  MoreHorizontal,
+  ShieldAlert,
+  UserPlus,
+} from "lucide-react";
 import { AppShell } from "@/components/fendee/AppShell";
 import { Ava, Chip, TopBar } from "@/components/fendee/ui";
 import { getPerson } from "@/lib/fendee-data";
@@ -90,7 +99,11 @@ function OtherProfile() {
           <p className="mt-2 text-sm text-muted-foreground">
             Người này không thấy hồ sơ, trạng thái hay Gather của bạn nữa.
           </p>
-          <Button variant="secondary" className="mt-5 rounded-full" onClick={() => setBlocked(false)}>
+          <Button
+            variant="secondary"
+            className="mt-5 rounded-full"
+            onClick={() => setBlocked(false)}
+          >
             Bỏ chặn
           </Button>
         </div>
@@ -107,9 +120,13 @@ function OtherProfile() {
             </p>
             <div className="mt-4 flex justify-center gap-2">
               <Button size="sm" className="rounded-full">
-                {person.isFriend ? "Rủ gặp" : <>
-                  <UserPlus className="h-3.5 w-3.5" /> Kết bạn
-                </>}
+                {person.isFriend ? (
+                  "Rủ gặp"
+                ) : (
+                  <>
+                    <UserPlus className="h-3.5 w-3.5" /> Kết bạn
+                  </>
+                )}
               </Button>
               <Button
                 size="sm"

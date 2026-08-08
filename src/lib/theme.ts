@@ -11,7 +11,7 @@ function isTheme(value: string | null): value is Theme {
 
 function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", theme === "dark");
-  document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset["theme"] = theme;
 }
 
 export function getStoredTheme(): Theme {
@@ -38,4 +38,3 @@ export function useTheme() {
 
   return { theme, setTheme };
 }
-

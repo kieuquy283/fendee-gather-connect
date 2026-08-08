@@ -53,17 +53,42 @@ const groups: { title: string; icon: typeof MapPin; rows: Row[] }[] = [
     title: "Hiển thị",
     icon: Eye,
     rows: [
-      { key: "note", label: "Cho người lạ xem Note", sub: "Có thể giúp / Đang cần giúp", def: true },
-      { key: "online", label: "Hiện trạng thái đang hoạt động", sub: "Bạn bè thấy chấm xanh", def: true },
-      { key: "match", label: "Cho phép gợi ý theo sở thích", sub: "Dùng để tính độ phù hợp", def: true },
+      {
+        key: "note",
+        label: "Cho người lạ xem Note",
+        sub: "Có thể giúp / Đang cần giúp",
+        def: true,
+      },
+      {
+        key: "online",
+        label: "Hiện trạng thái đang hoạt động",
+        sub: "Bạn bè thấy chấm xanh",
+        def: true,
+      },
+      {
+        key: "match",
+        label: "Cho phép gợi ý theo sở thích",
+        sub: "Dùng để tính độ phù hợp",
+        def: true,
+      },
     ],
   },
   {
     title: "Liên hệ",
     icon: Users,
     rows: [
-      { key: "msg", label: "Chỉ bạn bè được nhắn tin", sub: "Người lạ phải gửi lời mời trước", def: true },
-      { key: "gather", label: "Chỉ bạn bè được mời tôi vào Gather", sub: "Hạn chế lời mời rác", def: true },
+      {
+        key: "msg",
+        label: "Chỉ bạn bè được nhắn tin",
+        sub: "Người lạ phải gửi lời mời trước",
+        def: true,
+      },
+      {
+        key: "gather",
+        label: "Chỉ bạn bè được mời tôi vào Gather",
+        sub: "Hạn chế lời mời rác",
+        def: true,
+      },
     ],
   },
 ];

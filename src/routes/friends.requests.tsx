@@ -34,7 +34,10 @@ function Requests() {
           {pending.map((r) => {
             const p = getPerson(r.id)!;
             return (
-              <li key={r.id} className="rounded-3xl border border-border/70 bg-card p-4 shadow-card">
+              <li
+                key={r.id}
+                className="rounded-3xl border border-border/70 bg-card p-4 shadow-card"
+              >
                 <div className="flex items-start gap-3">
                   <Ava src={p.avatar} alt={p.name} size={48} />
                   <div className="min-w-0 flex-1">

@@ -1,16 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
-import {
-  Bell,
-  Clock,
-  Eye,
-  MapPin,
-  Plus,
-  ShieldCheck,
-  Signal,
-  Users,
-} from "lucide-react";
+import { Bell, Clock, Eye, MapPin, Plus, ShieldCheck, Signal, Users } from "lucide-react";
 import logo from "@/assets/fendee-logo.png.asset.json";
 import {
   getPresence,
@@ -76,7 +67,9 @@ function ModeButton({
       onClick={() => onClick(mode)}
       className={cn(
         "h-8 flex-1 rounded-full px-2 text-[11px] font-semibold transition-colors",
-        active ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary text-muted-foreground",
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "bg-secondary text-muted-foreground",
       )}
     >
       {children}
@@ -142,7 +135,10 @@ function NearbyStrip({ people, disabled }: { people: PresencePerson[]; disabled:
             key={person.id}
             to="/profile/$id"
             params={{ id: person.id }}
-            className={cn("w-[62px] shrink-0 text-center", disabled && "pointer-events-none opacity-45")}
+            className={cn(
+              "w-[62px] shrink-0 text-center",
+              disabled && "pointer-events-none opacity-45",
+            )}
           >
             <span className="relative mx-auto block h-12 w-12">
               <img
@@ -182,7 +178,11 @@ function NotableCard({ person, disabled }: { person: PresencePerson; disabled: b
       )}
     >
       <div className="flex items-center gap-3">
-        <img src={person.avatar} alt={person.name} className="h-10 w-10 rounded-full object-cover" />
+        <img
+          src={person.avatar}
+          alt={person.name}
+          className="h-10 w-10 rounded-full object-cover"
+        />
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs font-semibold">
             {person.name} · {person.role}
@@ -292,7 +292,10 @@ export function WidgetMiniInterface() {
             <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             Không bản đồ, không tọa độ
           </span>
-          <Link to="/settings/privacy" className="inline-flex items-center gap-1 font-medium text-primary">
+          <Link
+            to="/settings/privacy"
+            className="inline-flex items-center gap-1 font-medium text-primary"
+          >
             <Eye className="h-3.5 w-3.5" />
             Riêng tư
           </Link>
