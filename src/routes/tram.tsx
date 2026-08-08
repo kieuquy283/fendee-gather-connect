@@ -1,6 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { Filter, Sparkles, Users } from "lucide-react";
 import { AppShell } from "@/components/fendee/AppShell";
 import { Chip, TopBar } from "@/components/fendee/ui";
@@ -16,27 +15,24 @@ import {
   stationFilters,
   type PresencePerson,
 } from "@/lib/fendee-presence";
+import { usePresence } from "@/lib/presence-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/tram")({
   head: () => ({
     meta: [
-      { title: "Trạm hiện tại — Fendee" },
+      { title: "Station - Fendee" },
       {
         name: "description",
-        content:
-          "Xem ai đang hiện diện quanh trạm của bạn theo bạn bè, mức phù hợp, cùng địa điểm và cụm hoạt động — không bản đồ, không toạ độ chính xác.",
+        content: "Station view uses centralized presence state and approximate place labels.",
       },
-      { property: "og:title", content: "Trạm hiện tại — Fendee" },
-      { property: "og:description", content: "Ai đang quanh đây và vì sao đáng kết nối." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: TramScreen,
 });
 
 function TramScreen() {
+  const presence = usePresence();
   const [preview, setPreview] = useState<PresencePerson | null>(null);
   const [filters, setFilters] = useState<string[]>(["Dưới 1 km"]);
 
@@ -50,22 +46,36 @@ function TramScreen() {
   return (
     <AppShell>
       <TopBar
-        title="Trạm hiện tại"
+        title="Station"
         back="/home"
-        subtitle={`${station.name} · ${station.publicLeft}`}
+        subtitle={
+          presence.isPresenceEnabled
+            ? `Nearby ${presence.nearbyPresenceLocation?.zone.shortLabel ?? "hidden"} - Friends ${
+                presence.friendLocationSnapshot?.zone.shortLabel ?? "none"
+              }`
+            : "Presence off"
+        }
       />
 
       <div className="rounded-3xl border border-border/70 bg-card p-4 shadow-card">
         <p className="text-sm">
-          {station.friends} bạn bè · {station.matches} người phù hợp · {station.gathers} Gather đang
-          mở
+          {station.friends} friends - {station.matches} relevant people - {station.gathers} open
+          Gathers
         </p>
-        <p className="mt-1 text-[11px] text-muted-foreground">{station.updated}</p>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Device {presence.deviceLocation.zone.shortLabel} - friend snapshot{" "}
+          {presence.friendLocationSnapshot?.zone.shortLabel ?? "none"}
+        </p>
+        {presence.isFriendSnapshotOutdated && (
+          <p className="mt-2 rounded-2xl bg-warn/10 p-2 text-[11px] text-muted-foreground">
+            Friends are still seeing the previous shared location. Nearby follows the current area.
+          </p>
+        )}
       </div>
 
       <div className="mt-4">
         <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-          <Filter className="h-3.5 w-3.5" /> Bộ lọc
+          <Filter className="h-3.5 w-3.5" /> Filters
         </div>
         <div className="no-scrollbar -mx-5 flex flex-wrap gap-2 px-5">
           {stationFilters.map((f) => (
@@ -84,16 +94,16 @@ function TramScreen() {
       <Tabs defaultValue="foryou" className="mt-5">
         <TabsList className="w-full rounded-full">
           <TabsTrigger value="foryou" className="rounded-full text-xs">
-            Dành cho bạn
+            For you
           </TabsTrigger>
           <TabsTrigger value="friends" className="rounded-full text-xs">
-            Bạn bè
+            Friends
           </TabsTrigger>
           <TabsTrigger value="here" className="rounded-full text-xs">
-            Đang ở đây
+            Here
           </TabsTrigger>
           <TabsTrigger value="activity" className="rounded-full text-xs">
-            Hoạt động
+            Activity
           </TabsTrigger>
         </TabsList>
 
@@ -102,20 +112,12 @@ function TramScreen() {
             <PresenceCard key={p.id} person={p} onPreview={setPreview} />
           ))}
           <StateCard
-            title="Có 18 người đang Public quanh đây nhưng chưa tìm thấy nhiều điểm chung rõ ràng"
-            body="Cập nhật sở thích và Give & Need để Fendee gợi ý đúng người hơn."
+            title="Station uses approximate labels"
+            body="No map, coordinates, or live friend tracking is displayed here."
             actions={
-              <>
-                <Button size="sm" className="rounded-full">
-                  Xem tất cả
-                </Button>
-                <Button size="sm" variant="secondary" className="rounded-full" asChild>
-                  <Link to="/setup-profile">Cập nhật sở thích</Link>
-                </Button>
-                <Button size="sm" variant="ghost" className="rounded-full" asChild>
-                  <Link to="/profile">Cập nhật Give &amp; Need</Link>
-                </Button>
-              </>
+              <Button size="sm" variant="secondary" className="rounded-full" asChild>
+                <Link to="/settings/privacy">Privacy settings</Link>
+              </Button>
             }
           />
         </TabsContent>
@@ -131,20 +133,12 @@ function TramScreen() {
             here.map((p) => <PresenceCard key={p.id} person={p} onPreview={setPreview} />)
           ) : (
             <StateCard
-              title="Chưa có ai đang chủ động xuất hiện quanh bạn"
-              body="Chưa ai bật hiện diện ở trạm này trong 15 phút qua."
+              title="No one active here"
+              body="No prototype users are active in this station right now."
               actions={
-                <>
-                  <Button size="sm" className="rounded-full" asChild>
-                    <Link to="/gather/new">Tạo Gather</Link>
-                  </Button>
-                  <Button size="sm" variant="secondary" className="rounded-full" asChild>
-                    <Link to="/add-friend">Mời bạn bè</Link>
-                  </Button>
-                  <Button size="sm" variant="ghost" className="rounded-full">
-                    Thử lại sau
-                  </Button>
-                </>
+                <Button size="sm" className="rounded-full" asChild>
+                  <Link to="/gather/new">Create Gather</Link>
+                </Button>
               }
             />
           )}
@@ -184,7 +178,7 @@ function TramScreen() {
                   className="ml-auto rounded-full"
                   onClick={() => setPreview(getPresence(c.ids[0]!) ?? null)}
                 >
-                  Xem nhanh
+                  Quick view
                 </Button>
               </div>
             </article>
@@ -193,7 +187,7 @@ function TramScreen() {
       </Tabs>
 
       <p className="mb-4 mt-6 text-center text-[11px] text-muted-foreground">
-        Fendee chỉ hiển thị khoảng cách tương đối và không bao giờ hiện bản đồ hay toạ độ.
+        Fendee shows approximate distance and place labels only.
       </p>
 
       <QuickPreview person={preview} onOpenChange={(v) => !v && setPreview(null)} />

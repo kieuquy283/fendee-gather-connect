@@ -3,6 +3,7 @@ import { Bell, CalendarClock, MapPin, ShieldCheck, UserPlus } from "lucide-react
 import { AppShell } from "@/components/fendee/AppShell";
 import { EmptyState, TopBar } from "@/components/fendee/ui";
 import { notifications, type Notice } from "@/lib/fendee-data";
+import { usePresence } from "@/lib/presence-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/notifications")({
@@ -35,13 +36,27 @@ const links = {
 } as const;
 
 function Notifications() {
+  const presence = usePresence();
+  const sessionNotice: Notice | null =
+    presence.presenceSession?.notificationSent && presence.friendLocationSnapshot
+      ? {
+          id: "presence-session",
+          type: "nearby",
+          title: "Presence shared",
+          body: `${presence.audienceLabel} received a one-time snapshot for ${presence.friendLocationSnapshot.zone.shortLabel}.`,
+          time: "now",
+          unread: true,
+        }
+      : null;
+  const visibleNotifications = sessionNotice ? [sessionNotice, ...notifications] : notifications;
+
   return (
     <AppShell>
       <TopBar title="Thông báo" subtitle="2 thông báo mới" back="/home" />
 
-      {notifications.length ? (
+      {visibleNotifications.length ? (
         <ul className="space-y-2">
-          {notifications.map((n: Notice) => {
+          {visibleNotifications.map((n: Notice) => {
             const Icon = icons[n.type];
             return (
               <li key={n.id}>

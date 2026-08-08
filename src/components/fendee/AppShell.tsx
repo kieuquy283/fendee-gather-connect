@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Home, MapPin, Users, MessageCircle, User, Plus, Radar } from "lucide-react";
+import { usePresence } from "@/lib/presence-store";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -66,6 +67,23 @@ export function AppShell({
   nav?: boolean;
   bare?: boolean;
 }) {
+  const presence = usePresence();
+  const status = presence.presenceSession?.status ?? "off";
+  const showPresence =
+    presence.isPresenceEnabled || status === "expired" || presence.permission === "lost";
+  const label =
+    status === "moving"
+      ? "Moving - hidden from Nearby"
+      : status === "offline" || presence.permission === "lost"
+        ? "Location permission lost"
+        : status === "expired"
+          ? "Presence expired"
+          : presence.isPresenceEnabled
+            ? `Nearby: ${presence.nearbyPresenceLocation?.zone.shortLabel ?? "hidden"} - Friends: ${
+                presence.friendLocationSnapshot?.zone.shortLabel ?? "none"
+              }`
+            : "";
+
   return (
     <div className="min-h-screen bg-background">
       <div
@@ -75,6 +93,20 @@ export function AppShell({
           "sm:border-x sm:border-border/60",
         )}
       >
+        {showPresence && (
+          <div
+            className={cn(
+              "sticky top-0 z-40 -mx-5 border-b border-border/70 px-5 py-2 text-center text-[11px] font-medium backdrop-blur-xl",
+              status === "moving" || status === "offline" || presence.permission === "lost"
+                ? "bg-warn/15 text-warn-foreground"
+                : status === "expired"
+                  ? "bg-secondary text-muted-foreground"
+                  : "bg-online/12 text-online",
+            )}
+          >
+            {label}
+          </div>
+        )}
         <main className="flex-1">{children}</main>
         {nav && <BottomNav />}
       </div>

@@ -1,14 +1,217 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Check, Clock, Eye, Globe2, Lock, ShieldCheck, Users } from "lucide-react";
+import { Check, Clock, Eye, Globe2, Lock, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Chip } from "./ui";
 import { GiveNeed, PresenceAva, presenceLabel } from "./presence";
 import { presenceDurations, type PresencePerson } from "@/lib/fendee-presence";
+import type { AudienceMode, FriendAudience, PresenceZone } from "@/lib/presence-store";
 import { cn } from "@/lib/utils";
 
 export type PresenceMode = "off" | "friends" | "public";
+
+const audienceOptions = [
+  {
+    key: "all_friends" as const,
+    icon: Users,
+    title: "All friends",
+    body: "Every friend can see the shared location snapshot.",
+  },
+  {
+    key: "groups" as const,
+    icon: UserCheck,
+    title: "Friend groups",
+    body: "Use close friends and trusted groups for this session.",
+  },
+  {
+    key: "selected" as const,
+    icon: Check,
+    title: "Selected friends",
+    body: "Share the snapshot with only selected people.",
+  },
+];
+
+function audienceFromMode(mode: AudienceMode): FriendAudience {
+  if (mode === "groups") {
+    return { mode, groupIds: ["close-friends"], friendIds: [] };
+  }
+  if (mode === "selected") {
+    return { mode, groupIds: [], friendIds: ["hailang", "minhtu", "tuananh"] };
+  }
+  return { mode, groupIds: [], friendIds: [] };
+}
+
+export function PresenceConfigSheet({
+  open,
+  onOpenChange,
+  onConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onConfirm: (audience: FriendAudience) => void;
+}) {
+  const [mode, setMode] = useState<AudienceMode>("all_friends");
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="rounded-t-[28px] border-border/70 px-5 pb-6">
+        <SheetHeader className="px-0 pb-1 text-left">
+          <SheetTitle>Enable presence</SheetTitle>
+        </SheetHeader>
+        <p className="text-xs text-muted-foreground">
+          Choose which friends receive a location snapshot. While presence is enabled, people
+          physically nearby may also see you in Nearby.
+        </p>
+
+        <div className="mt-4 space-y-2">
+          {audienceOptions.map((option) => {
+            const active = mode === option.key;
+            const Icon = option.icon;
+            return (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => setMode(option.key)}
+                className={cn(
+                  "flex w-full items-start gap-3 rounded-2xl border p-3.5 text-left transition-colors",
+                  active ? "border-primary bg-primary/8" : "border-border/70 bg-surface-2",
+                )}
+              >
+                <Icon className="mt-0.5 h-4.5 w-4.5 text-primary" />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold">{option.title}</span>
+                  <span className="block text-[11px] text-muted-foreground">{option.body}</span>
+                </span>
+                {active && <Check className="h-4 w-4 text-primary" />}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-border/70 bg-surface-2 p-3.5">
+          <p className="flex items-center gap-1.5 text-xs font-semibold">
+            <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Two separate location models
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Nearby follows your current area while active. Friends get a snapshot that changes only
+            when you press Update location.
+          </p>
+        </div>
+
+        <Button
+          className="mt-4 w-full rounded-full"
+          onClick={() => {
+            onConfirm(audienceFromMode(mode));
+            onOpenChange(false);
+          }}
+        >
+          Confirm and start presence
+        </Button>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+export function UpdateLocationSheet({
+  open,
+  onOpenChange,
+  previous,
+  next,
+  audienceCount,
+  onConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  previous: PresenceZone | null;
+  next: PresenceZone;
+  audienceCount: number;
+  onConfirm: (notifyAgain: boolean) => void;
+}) {
+  const [notifyAgain, setNotifyAgain] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="rounded-t-[28px] border-border/70 px-5 pb-6">
+        <SheetHeader className="px-0 pb-1 text-left">
+          <SheetTitle>Update shared location?</SheetTitle>
+        </SheetHeader>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+          <div className="rounded-2xl border border-border/70 bg-surface-2 p-3">
+            <p className="font-semibold">Previous</p>
+            <p className="mt-1 text-muted-foreground">{previous?.shortLabel ?? "No snapshot"}</p>
+          </div>
+          <div className="rounded-2xl border border-primary/35 bg-accent/40 p-3">
+            <p className="font-semibold">New</p>
+            <p className="mt-1 text-muted-foreground">{next.shortLabel}</p>
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          {audienceCount} friends will receive the updated shared location.
+        </p>
+        <label className="mt-3 flex items-center gap-2 rounded-2xl bg-surface-2 p-3 text-xs">
+          <input
+            type="checkbox"
+            checked={notifyAgain}
+            onChange={(event) => setNotifyAgain(event.target.checked)}
+          />
+          Notify friends again
+        </label>
+        <Button
+          className="mt-4 w-full rounded-full"
+          onClick={() => {
+            onConfirm(notifyAgain);
+            onOpenChange(false);
+          }}
+        >
+          Update location for friends
+        </Button>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+export function StopPresenceSheet({
+  open,
+  onOpenChange,
+  onConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="rounded-t-[28px] border-border/70 px-5 pb-6">
+        <SheetHeader className="px-0 pb-1 text-left">
+          <SheetTitle>Stop presence?</SheetTitle>
+        </SheetHeader>
+        <p className="text-xs text-muted-foreground">
+          This immediately removes you from Nearby, ends the active friend-sharing session, and
+          clears active shared-location indicators.
+        </p>
+        <div className="mt-4 flex gap-2">
+          <Button
+            variant="secondary"
+            className="flex-1 rounded-full"
+            onClick={() => onOpenChange(false)}
+          >
+            Keep on
+          </Button>
+          <Button
+            className="flex-1 rounded-full"
+            onClick={() => {
+              onConfirm();
+              onOpenChange(false);
+            }}
+          >
+            Stop presence
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
 
 export function AppearSheet({
   open,

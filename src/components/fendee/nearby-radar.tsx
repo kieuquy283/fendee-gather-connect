@@ -41,6 +41,15 @@ export function NearbyRadar({
         <p className="mt-1 text-[10px] font-semibold text-muted-foreground">Bạn</p>
       </div>
 
+      {markers.length === 0 && (
+        <div className="absolute inset-x-8 top-[58%] text-center">
+          <p className="text-sm font-semibold">No one nearby</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            The frame remains active while your Nearby presence is enabled.
+          </p>
+        </div>
+      )}
+
       {markers.map((m) => {
         const person = getPresence(m.id);
         if (!person) return null;
