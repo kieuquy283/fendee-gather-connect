@@ -14,6 +14,14 @@ function applyTheme(theme: Theme) {
   document.documentElement.dataset["theme"] = theme;
 }
 
+function getInitialTheme(): Theme {
+  if (typeof document !== "undefined") {
+    const theme = document.documentElement.dataset["theme"] ?? null;
+    if (isTheme(theme)) return theme;
+  }
+  return getStoredTheme();
+}
+
 export function getStoredTheme(): Theme {
   if (typeof window === "undefined") return defaultTheme;
 
@@ -22,13 +30,11 @@ export function getStoredTheme(): Theme {
 }
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(defaultTheme);
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
-    const storedTheme = getStoredTheme();
-    setThemeState(storedTheme);
-    applyTheme(storedTheme);
-  }, []);
+    applyTheme(theme);
+  }, [theme]);
 
   const setTheme = (nextTheme: Theme) => {
     setThemeState(nextTheme);

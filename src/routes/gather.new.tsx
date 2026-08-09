@@ -69,10 +69,10 @@ function NewGather() {
         ? inviteResolution.resolvedRecipientIds.length > 0
         : true;
 
-  const publish = () => {
+  const publish = async () => {
     setError(null);
     try {
-      const id = store.createGather({
+      const id = await store.createGather({
         title,
         note,
         place,
@@ -80,7 +80,7 @@ function NewGather() {
         cohostSelection: cohosts,
         inviteSelection: invites,
       });
-      navigate({ to: "/gather/$id", params: { id } });
+      await navigate({ to: "/gather/$id", params: { id } });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Không thể gửi Gather.");
     }
@@ -265,7 +265,7 @@ function NewGather() {
             Tiếp tục
           </Button>
         ) : (
-          <Button size="lg" className="flex-1 rounded-full" onClick={publish}>
+          <Button size="lg" className="flex-1 rounded-full" onClick={() => void publish()}>
             Gửi Gather
           </Button>
         )}

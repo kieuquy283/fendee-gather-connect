@@ -15,20 +15,20 @@ const audienceOptions = [
   {
     key: "all_friends" as const,
     icon: Users,
-    title: "All friends",
-    body: "Every friend can see the shared location snapshot.",
+    title: "Tất cả bạn bè",
+    body: "Mọi bạn bè đều thấy snapshot vị trí đã chia sẻ.",
   },
   {
     key: "groups" as const,
     icon: UserCheck,
-    title: "Friend groups",
-    body: "Use close friends and trusted groups for this session.",
+    title: "Nhóm bạn",
+    body: "Dùng nhóm bạn thân và nhóm tin cậy cho lần chia sẻ này.",
   },
   {
     key: "selected" as const,
     icon: Check,
-    title: "Selected friends",
-    body: "Share the snapshot with only selected people.",
+    title: "Bạn bè đã chọn",
+    body: "Chỉ chia sẻ snapshot với những người bạn chọn.",
   },
 ];
 
@@ -46,10 +46,14 @@ export function PresenceConfigSheet({
   open,
   onOpenChange,
   onConfirm,
+  busy = false,
+  error = null,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  onConfirm: (audience: FriendAudience) => void;
+  onConfirm: (audience: FriendAudience) => Promise<boolean> | boolean;
+  busy?: boolean;
+  error?: string | null;
 }) {
   const [mode, setMode] = useState<AudienceMode>("all_friends");
 
@@ -57,11 +61,11 @@ export function PresenceConfigSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-[28px] border-border/70 px-5 pb-6">
         <SheetHeader className="px-0 pb-1 text-left">
-          <SheetTitle>Enable presence</SheetTitle>
+          <SheetTitle>Bật hiện diện</SheetTitle>
         </SheetHeader>
         <p className="text-xs text-muted-foreground">
-          Choose which friends receive a location snapshot. While presence is enabled, people
-          physically nearby may also see you in Nearby.
+          Chọn những người bạn nhận snapshot vị trí. Khi hiện diện đang bật, người ở gần cũng có thể
+          thấy bạn trong Nearby.
         </p>
 
         <div className="mt-4 space-y-2">
@@ -91,22 +95,29 @@ export function PresenceConfigSheet({
 
         <div className="mt-4 rounded-2xl border border-border/70 bg-surface-2 p-3.5">
           <p className="flex items-center gap-1.5 text-xs font-semibold">
-            <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Two separate location models
+            <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Hai lớp chia sẻ vị trí riêng biệt
           </p>
           <p className="mt-1 text-[11px] text-muted-foreground">
-            Nearby follows your current area while active. Friends get a snapshot that changes only
-            when you press Update location.
+            Nearby bám theo khu vực hiện tại khi đang bật. Bạn bè chỉ nhận snapshot mới khi bạn bấm
+            Cập nhật vị trí.
           </p>
         </div>
 
+        {error && (
+          <p role="alert" className="mt-4 rounded-2xl bg-warn/10 p-3 text-xs text-warn-foreground">
+            {error}
+          </p>
+        )}
+
         <Button
           className="mt-4 w-full rounded-full"
-          onClick={() => {
-            onConfirm(audienceFromMode(mode));
-            onOpenChange(false);
+          disabled={busy}
+          onClick={async () => {
+            const didStart = await onConfirm(audienceFromMode(mode));
+            if (didStart) onOpenChange(false);
           }}
         >
-          Confirm and start presence
+          {busy ? "Đang bật..." : "Xác nhận và bật hiện diện"}
         </Button>
       </SheetContent>
     </Sheet>
@@ -120,13 +131,17 @@ export function UpdateLocationSheet({
   next,
   audienceCount,
   onConfirm,
+  busy = false,
+  error = null,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   previous: PresenceZone | null;
   next: PresenceZone;
   audienceCount: number;
-  onConfirm: (notifyAgain: boolean) => void;
+  onConfirm: (notifyAgain: boolean) => Promise<boolean> | boolean;
+  busy?: boolean;
+  error?: string | null;
 }) {
   const [notifyAgain, setNotifyAgain] = useState(false);
 
@@ -134,20 +149,22 @@ export function UpdateLocationSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-[28px] border-border/70 px-5 pb-6">
         <SheetHeader className="px-0 pb-1 text-left">
-          <SheetTitle>Update shared location?</SheetTitle>
+          <SheetTitle>Cập nhật vị trí đã chia sẻ?</SheetTitle>
         </SheetHeader>
         <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
           <div className="rounded-2xl border border-border/70 bg-surface-2 p-3">
-            <p className="font-semibold">Previous</p>
-            <p className="mt-1 text-muted-foreground">{previous?.shortLabel ?? "No snapshot"}</p>
+            <p className="font-semibold">Trước đó</p>
+            <p className="mt-1 text-muted-foreground">
+              {previous?.shortLabel ?? "Chưa có snapshot"}
+            </p>
           </div>
           <div className="rounded-2xl border border-primary/35 bg-accent/40 p-3">
-            <p className="font-semibold">New</p>
+            <p className="font-semibold">Mới</p>
             <p className="mt-1 text-muted-foreground">{next.shortLabel}</p>
           </div>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          {audienceCount} friends will receive the updated shared location.
+          {audienceCount} bạn bè sẽ nhận vị trí chia sẻ đã cập nhật.
         </p>
         <label className="mt-3 flex items-center gap-2 rounded-2xl bg-surface-2 p-3 text-xs">
           <input
@@ -155,16 +172,22 @@ export function UpdateLocationSheet({
             checked={notifyAgain}
             onChange={(event) => setNotifyAgain(event.target.checked)}
           />
-          Notify friends again
+          Gửi thông báo lại cho bạn bè
         </label>
+        {error && (
+          <p role="alert" className="mt-3 rounded-2xl bg-warn/10 p-3 text-xs text-warn-foreground">
+            {error}
+          </p>
+        )}
         <Button
           className="mt-4 w-full rounded-full"
-          onClick={() => {
-            onConfirm(notifyAgain);
-            onOpenChange(false);
+          disabled={busy}
+          onClick={async () => {
+            const didUpdate = await onConfirm(notifyAgain);
+            if (didUpdate) onOpenChange(false);
           }}
         >
-          Update location for friends
+          {busy ? "Đang cập nhật..." : "Cập nhật vị trí cho bạn bè"}
         </Button>
       </SheetContent>
     </Sheet>
@@ -175,37 +198,48 @@ export function StopPresenceSheet({
   open,
   onOpenChange,
   onConfirm,
+  busy = false,
+  error = null,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<boolean> | boolean;
+  busy?: boolean;
+  error?: string | null;
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="rounded-t-[28px] border-border/70 px-5 pb-6">
         <SheetHeader className="px-0 pb-1 text-left">
-          <SheetTitle>Stop presence?</SheetTitle>
+          <SheetTitle>Tắt hiện diện?</SheetTitle>
         </SheetHeader>
         <p className="text-xs text-muted-foreground">
-          This immediately removes you from Nearby, ends the active friend-sharing session, and
-          clears active shared-location indicators.
+          Hành động này sẽ lập tức gỡ bạn khỏi Nearby, kết thúc phiên chia sẻ cho bạn bè và xóa các
+          chỉ báo vị trí đang hoạt động.
         </p>
+        {error && (
+          <p role="alert" className="mt-4 rounded-2xl bg-warn/10 p-3 text-xs text-warn-foreground">
+            {error}
+          </p>
+        )}
         <div className="mt-4 flex gap-2">
           <Button
             variant="secondary"
             className="flex-1 rounded-full"
+            disabled={busy}
             onClick={() => onOpenChange(false)}
           >
-            Keep on
+            Giữ nguyên
           </Button>
           <Button
             className="flex-1 rounded-full"
-            onClick={() => {
-              onConfirm();
-              onOpenChange(false);
+            disabled={busy}
+            onClick={async () => {
+              const didStop = await onConfirm();
+              if (didStop) onOpenChange(false);
             }}
           >
-            Stop presence
+            {busy ? "Đang tắt..." : "Tắt hiện diện"}
           </Button>
         </div>
       </SheetContent>
@@ -251,22 +285,23 @@ export function AppearSheet({
         </p>
 
         <div className="mt-4 space-y-2">
-          {options.map((o) => {
-            const active = mode === o.key;
+          {options.map((option) => {
+            const active = mode === option.key;
+            const Icon = option.icon;
             return (
               <button
-                key={o.key}
+                key={option.key}
                 type="button"
-                onClick={() => setMode(o.key)}
+                onClick={() => setMode(option.key)}
                 className={cn(
                   "flex w-full items-start gap-3 rounded-2xl border p-3.5 text-left transition-colors",
                   active ? "border-primary bg-primary/8" : "border-border/70 bg-surface-2",
                 )}
               >
-                <o.icon className="mt-0.5 h-4.5 w-4.5 text-primary" />
+                <Icon className="mt-0.5 h-4.5 w-4.5 text-primary" />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold">{o.title}</span>
-                  <span className="block text-[11px] text-muted-foreground">{o.body}</span>
+                  <span className="block text-sm font-semibold">{option.title}</span>
+                  <span className="block text-[11px] text-muted-foreground">{option.body}</span>
                 </span>
                 {active && <Check className="h-4 w-4 text-primary" />}
               </button>
@@ -274,15 +309,15 @@ export function AppearSheet({
           })}
         </div>
 
-        <p className="mt-4 mb-2 text-xs font-semibold">Thời hạn hiện diện</p>
+        <p className="mb-2 mt-4 text-xs font-semibold">Thời hạn hiện diện</p>
         <div className="flex flex-wrap gap-2">
-          {presenceDurations.map((d) => (
-            <button key={d} type="button" onClick={() => setDuration(d)}>
+          {presenceDurations.map((durationOption) => (
+            <button key={durationOption} type="button" onClick={() => setDuration(durationOption)}>
               <Chip
-                tone={duration === d ? "accent" : "outline"}
-                className={cn("px-3 py-1.5", duration === d && "ring-1 ring-primary")}
+                tone={duration === durationOption ? "accent" : "outline"}
+                className={cn("px-3 py-1.5", duration === durationOption && "ring-1 ring-primary")}
               >
-                <Clock className="h-3 w-3" /> {d}
+                <Clock className="h-3 w-3" /> {durationOption}
               </Chip>
             </button>
           ))}
@@ -293,13 +328,13 @@ export function AppearSheet({
             <Eye className="h-3.5 w-3.5 text-primary" /> Người khác sẽ thấy
           </p>
           <ul className="mt-2 space-y-1 text-[11px] text-muted-foreground">
-            <li>· Tên, ảnh đại diện, trường/nghề</li>
-            <li>· Trạng thái ngắn và Give &amp; Need của bạn</li>
-            <li>· Khoảng cách tương đối (cùng địa điểm / dưới 1 km / 1–3 km)</li>
+            <li>• Tên, ảnh đại diện, trường/nghề</li>
+            <li>• Trạng thái ngắn và Give &amp; Need của bạn</li>
+            <li>• Khoảng cách tương đối (cùng địa điểm / dưới 1 km / 1-3 km)</li>
           </ul>
           <p className="mt-2.5 flex items-start gap-1.5 text-[11px] text-muted-foreground">
             <Lock className="mt-[1px] h-3.5 w-3.5 shrink-0 text-primary" />
-            Không hiển thị bản đồ, toạ độ hay khoảng cách chính xác. Hết thời hạn, hiện diện tự tắt.
+            Không hiển thị bản đồ, tọa độ hay khoảng cách chính xác. Hết thời hạn, hiện diện tự tắt.
           </p>
         </div>
 
@@ -314,7 +349,7 @@ export function AppearSheet({
           }}
         >
           {mode && duration
-            ? `Bật ${mode === "public" ? "Public" : "Chỉ bạn bè"} · ${duration}`
+            ? `Bật ${mode === "public" ? "Công khai" : "Chỉ bạn bè"} · ${duration}`
             : "Chọn chế độ và thời hạn"}
         </Button>
         <p className="mt-2 flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
@@ -358,9 +393,9 @@ export function QuickPreview({
             <GiveNeed person={person} />
 
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {person.reasons.map((r) => (
-                <Chip key={r} tone="accent">
-                  {r}
+              {person.reasons.map((reason) => (
+                <Chip key={reason} tone="accent">
+                  {reason}
                 </Chip>
               ))}
               <Chip tone="outline">{person.mutual} bạn chung</Chip>
@@ -370,12 +405,12 @@ export function QuickPreview({
               <Button className="flex-1 rounded-full">Gửi lời giới thiệu</Button>
               <Button variant="secondary" className="flex-1 rounded-full" asChild>
                 <Link to="/profile/$id" params={{ id: person.id }}>
-                  Xem profile đầy đủ
+                  Xem hồ sơ đầy đủ
                 </Link>
               </Button>
             </div>
             <p className="mt-2 text-center text-[10px] text-muted-foreground">
-              Lời giới thiệu luôn kèm tên thật của bạn — Fendee không cho tương tác vô danh.
+              Lời giới thiệu luôn kèm tên thật của bạn - Fendee không cho tương tác vô danh.
             </p>
           </>
         )}

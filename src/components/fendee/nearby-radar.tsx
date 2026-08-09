@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 export type NearbyPick = { person: PresencePerson; marker: NearbyMarker };
 
-/** Relative proximity frame — a 100m "bubble", not a map. */
+/** Relative proximity frame - a 100m bubble, not a map. */
 export function NearbyRadar({
   markers,
   onPick,
@@ -19,12 +19,10 @@ export function NearbyRadar({
 }) {
   return (
     <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[32px] border border-border/70 bg-surface shadow-card">
-      {/* soft proximity rings */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <span className="absolute h-[92%] w-[92%] rounded-full border border-primary/12 bg-primary/[0.03]" />
         <span className="absolute h-[62%] w-[62%] rounded-full border border-primary/16 bg-primary/[0.05]" />
         <span className="absolute h-[32%] w-[32%] rounded-full border border-primary/25 bg-primary/[0.07]" />
-        {/* radar sweep */}
         <span className="radar-sweep absolute h-[92%] w-[92%] rounded-full [background:conic-gradient(from_0deg,transparent_0deg,transparent_300deg,color-mix(in_oklab,var(--color-primary)_28%,transparent)_355deg,transparent_360deg)]" />
       </div>
 
@@ -32,7 +30,6 @@ export function NearbyRadar({
         Bán kính ~100m · vị trí tương đối
       </span>
 
-      {/* me */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
         <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
           <span className="absolute inset-0 animate-ping rounded-full bg-primary/30" />
@@ -43,22 +40,22 @@ export function NearbyRadar({
 
       {markers.length === 0 && (
         <div className="absolute inset-x-8 top-[58%] text-center">
-          <p className="text-sm font-semibold">No one nearby</p>
+          <p className="text-sm font-semibold">Chưa có ai ở gần</p>
           <p className="mt-1 text-[11px] text-muted-foreground">
-            The frame remains active while your Nearby presence is enabled.
+            Khung Nearby vẫn hoạt động khi bạn đang bật hiện diện.
           </p>
         </div>
       )}
 
-      {markers.map((m) => {
-        const person = getPresence(m.id);
+      {markers.map((marker) => {
+        const person = getPresence(marker.id);
         if (!person) return null;
         return (
           <button
-            key={m.id}
+            key={marker.id}
             type="button"
-            onClick={() => onPick({ person, marker: m })}
-            style={{ left: `${m.x}%`, top: `${m.y}%` }}
+            onClick={() => onPick({ person, marker })}
+            style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
             className="absolute w-[86px] -translate-x-1/2 -translate-y-1/2 text-center transition-transform active:scale-95"
           >
             <span className="mx-auto mb-1 block max-w-full truncate rounded-full bg-card px-2 py-0.5 text-[10px] font-semibold shadow-card">
@@ -84,7 +81,7 @@ export function NearbyRadar({
               />
             </span>
             <span className="mt-1 block truncate text-[10px] text-muted-foreground">
-              ~{m.meters}m
+              ~{marker.meters}m
             </span>
           </button>
         );
@@ -132,9 +129,9 @@ export function NearbyMarkerSheet({
             <GiveNeed person={person} />
 
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {person.interests.map((i) => (
-                <Chip key={i} tone="outline">
-                  {i}
+              {person.interests.map((interest) => (
+                <Chip key={interest} tone="outline">
+                  {interest}
                 </Chip>
               ))}
               <Chip tone="accent">{person.mutual} bạn chung</Chip>
@@ -152,11 +149,11 @@ export function NearbyMarkerSheet({
             </div>
             <Button variant="ghost" className="mt-2 w-full rounded-full" asChild>
               <Link to="/profile/$id" params={{ id: person.id }}>
-                Xem profile
+                Xem hồ sơ
               </Link>
             </Button>
             <p className="mt-1 text-center text-[10px] text-muted-foreground">
-              Khoảng cách chỉ là ước lượng tương đối — Fendee không hiển thị toạ độ.
+              Khoảng cách chỉ là ước lượng tương đối - Fendee không hiển thị tọa độ.
             </p>
           </>
         )}

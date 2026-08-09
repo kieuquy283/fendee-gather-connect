@@ -6,7 +6,7 @@ import { WidgetLarge, WidgetMiniInterface } from "@/components/fendee/widgets";
 export const Route = createFileRoute("/widgets")({
   head: () => ({
     meta: [
-      { title: "Widget màn hình chính — Fendee" },
+      { title: "Widget màn hình chính - Fendee" },
       {
         name: "description",
         content:

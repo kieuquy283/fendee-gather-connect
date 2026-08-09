@@ -41,35 +41,187 @@ export async function capture(page: Page, testInfo: TestInfo, fileName390: strin
 }
 
 export async function clearGatherStorage(page: Page) {
-  await page.addInitScript(() => {
-    if (window.sessionStorage.getItem("fendee-gather-storage-cleared")) return;
-    window.localStorage.removeItem("fendee-gather-state-v2");
+  await seedAuthSession(page, "me");
+  await resetD2ServerState(page);
+  await resetD3ServerState(page);
+  await resetD4ServerState(page);
+  await page.evaluate(() => {
+    window.localStorage.removeItem("fendee-privacy-state-v1");
     window.localStorage.removeItem("fendee-theme");
-    window.sessionStorage.setItem("fendee-gather-storage-cleared", "1");
+  });
+}
+
+export async function resetD2ServerState(page: Page) {
+  await page.goto("/auth");
+  await page.evaluate(async () => {
+    await fetch("/api/dev/auth/session", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: "alice-owner",
+        status: "active",
+      }),
+    });
+    await fetch("/api/dev/d2/reset", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "reset",
+      }),
+    });
+  });
+}
+
+export async function resetD3ServerState(page: Page) {
+  await page.goto("/auth");
+  await page.evaluate(async () => {
+    await fetch("/api/dev/auth/session", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: "alice-owner",
+        status: "active",
+      }),
+    });
+    await fetch("/api/dev/d3/reset", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "reset",
+      }),
+    });
+  });
+}
+
+export async function resetD4ServerState(page: Page) {
+  await page.goto("/auth");
+  await page.evaluate(async () => {
+    await fetch("/api/dev/auth/session", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: "alice-owner",
+        status: "active",
+      }),
+    });
+    await fetch("/api/dev/d4/reset", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "reset",
+      }),
+    });
   });
 }
 
 export async function seedGatherState(page: Page, state: unknown) {
-  await page.addInitScript((value) => {
-    window.localStorage.setItem("fendee-gather-state-v2", JSON.stringify(value));
+  await page.goto("/auth");
+  await page.evaluate(async (value) => {
+    await fetch("/api/dev/auth/session", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: "alice-owner",
+        status: "active",
+      }),
+    });
+    await fetch("/api/dev/d4/seed", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        state: value,
+      }),
+    });
     window.localStorage.setItem("fendee-theme", "light");
   }, state);
+}
+
+export async function seedAuthSession(page: Page, userId = "me", expired = false) {
+  await page.goto("/auth");
+  await page.evaluate(
+    async ({ id, isExpired }) => {
+      const fixtureUserId =
+        id === "me"
+          ? "alice-owner"
+          : id === "hailang"
+            ? "bob-friend"
+            : id === "minhtu"
+              ? "cara-cohost"
+              : id === "tuananh"
+                ? "dan-invitee"
+                : id === "baongoc"
+                  ? "erin-blocked"
+                  : id === "annanguyen"
+                    ? "frank-stranger"
+                    : id;
+
+      await fetch("/api/dev/auth/session", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: fixtureUserId,
+          status: isExpired ? "expired" : "active",
+        }),
+      });
+
+      window.localStorage.setItem("fendee-theme", "light");
+    },
+    { id: userId, isExpired: expired },
+  );
+}
+
+export async function seedPrivacyState(page: Page, blockedUserIds: string[]) {
+  await resetD2ServerState(page);
+  await seedAuthSession(page, "me");
+  await page.evaluate(async (ids) => {
+    for (const targetUserId of ids) {
+      await fetch("/api/d2/blocks", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          targetUserId,
+        }),
+      });
+    }
+  }, blockedUserIds);
 }
 
 export async function seedGatherStateIfMissing(page: Page, state: unknown) {
-  await page.addInitScript((value) => {
-    if (!window.localStorage.getItem("fendee-gather-state-v2")) {
-      window.localStorage.setItem("fendee-gather-state-v2", JSON.stringify(value));
-    }
-    window.localStorage.setItem("fendee-theme", "light");
-  }, state);
+  await seedGatherState(page, state);
 }
 
 export async function setGatherState(page: Page, state: unknown) {
-  await page.evaluate((value) => {
-    window.localStorage.setItem("fendee-gather-state-v2", JSON.stringify(value));
-    window.localStorage.setItem("fendee-theme", "light");
-  }, state);
+  await seedGatherState(page, state);
 }
 
 export function qaState() {

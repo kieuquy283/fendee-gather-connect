@@ -1,28 +1,44 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
 import { Eye, Flag, Lock, MapPin, ShieldAlert, ShieldCheck, Users } from "lucide-react";
 import { AppShell } from "@/components/fendee/AppShell";
 import { TopBar } from "@/components/fendee/ui";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { usePrivacy } from "@/lib/privacy-store";
+import type { PrivacySettings } from "@/lib/social.functions";
 
 export const Route = createFileRoute("/settings/privacy")({
   head: () => ({
     meta: [
-      { title: "Quyền riêng tư & an toàn — Fendee" },
+      { title: "Quyền riêng tư & an toàn - Fendee" },
       {
         name: "description",
         content:
           "Vị trí mặc định tắt, không theo dõi liên tục, chỉ hiển thị khoảng cách tương đối. Bạn kiểm soát mọi thứ.",
       },
       { property: "og:title", content: "Quyền riêng tư trên Fendee" },
-      { property: "og:description", content: "Privacy-first: bạn quyết định ai thấy gì." },
+      {
+        property: "og:description",
+        content: "Ưu tiên quyền riêng tư: bạn quyết định ai thấy gì.",
+      },
     ],
   }),
   component: Privacy,
 });
 
-type Row = { key: string; label: string; sub: string; def: boolean };
+type PrivacySettingKey = keyof Pick<
+  PrivacySettings,
+  | "shareLocation"
+  | "showInNearby"
+  | "relativeDistanceOnly"
+  | "allowStrangerNotes"
+  | "showOnlineStatus"
+  | "allowInterestMatching"
+  | "friendsOnlyMessaging"
+  | "friendsOnlyGatherInvites"
+>;
+
+type Row = { key: PrivacySettingKey; label: string; sub: string };
 
 const groups: { title: string; icon: typeof MapPin; rows: Row[] }[] = [
   {
@@ -30,22 +46,19 @@ const groups: { title: string; icon: typeof MapPin; rows: Row[] }[] = [
     icon: MapPin,
     rows: [
       {
-        key: "loc",
+        key: "shareLocation",
         label: "Chia sẻ vị trí",
-        sub: "Mặc định TẮT. Chỉ bật khi bạn muốn được tìm thấy.",
-        def: false,
+        sub: "Mặc định tắt. Chỉ bật khi bạn muốn được tìm thấy.",
       },
       {
-        key: "public",
+        key: "showInNearby",
         label: "Xuất hiện trong Nearby",
         sub: "Phải bật chủ động. Tự tắt sau 2 giờ.",
-        def: false,
       },
       {
-        key: "rough",
+        key: "relativeDistanceOnly",
         label: "Chỉ hiển thị khoảng cách tương đối",
-        sub: "Luôn bật — người lạ không bao giờ thấy toạ độ chính xác.",
-        def: true,
+        sub: "Luôn ưu tiên ẩn tọa độ chính xác với người khác.",
       },
     ],
   },
@@ -54,22 +67,19 @@ const groups: { title: string; icon: typeof MapPin; rows: Row[] }[] = [
     icon: Eye,
     rows: [
       {
-        key: "note",
+        key: "allowStrangerNotes",
         label: "Cho người lạ xem Note",
         sub: "Có thể giúp / Đang cần giúp",
-        def: true,
       },
       {
-        key: "online",
+        key: "showOnlineStatus",
         label: "Hiện trạng thái đang hoạt động",
         sub: "Bạn bè thấy chấm xanh",
-        def: true,
       },
       {
-        key: "match",
+        key: "allowInterestMatching",
         label: "Cho phép gợi ý theo sở thích",
         sub: "Dùng để tính độ phù hợp",
-        def: true,
       },
     ],
   },
@@ -78,25 +88,24 @@ const groups: { title: string; icon: typeof MapPin; rows: Row[] }[] = [
     icon: Users,
     rows: [
       {
-        key: "msg",
+        key: "friendsOnlyMessaging",
         label: "Chỉ bạn bè được nhắn tin",
         sub: "Người lạ phải gửi lời mời trước",
-        def: true,
       },
       {
-        key: "gather",
+        key: "friendsOnlyGatherInvites",
         label: "Chỉ bạn bè được mời tôi vào Gather",
         sub: "Hạn chế lời mời rác",
-        def: true,
       },
     ],
   },
 ];
 
 function Privacy() {
-  const [on, setOn] = useState<Record<string, boolean>>(
-    Object.fromEntries(groups.flatMap((g) => g.rows.map((r) => [r.key, r.def]))),
-  );
+  const privacy = usePrivacy();
+  const settings = privacy.settings;
+  const saving = privacy.actionState.settings.status === "loading";
+  const error = privacy.actionState.settings.error ?? privacy.actionState.block.error;
 
   return (
     <AppShell>
@@ -110,31 +119,50 @@ function Privacy() {
         </p>
       </div>
 
-      {groups.map((g) => {
-        const Icon = g.icon;
-        return (
-          <section key={g.title} className="mt-5">
-            <h2 className="mb-2.5 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              <Icon className="h-4 w-4 text-primary" /> {g.title}
-            </h2>
-            <div className="divide-y divide-border/70 overflow-hidden rounded-3xl border border-border/70 bg-card">
-              {g.rows.map((r) => (
-                <div key={r.key} className="flex items-center gap-3 p-4">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{r.label}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">{r.sub}</p>
+      {error && (
+        <p role="alert" className="mt-4 rounded-2xl bg-warn/10 p-3 text-xs text-warn-foreground">
+          {error}
+        </p>
+      )}
+
+      {!settings ? (
+        <div className="mt-5 rounded-3xl border border-border/70 bg-card p-6 text-center text-sm text-muted-foreground shadow-card">
+          {privacy.actionState.settings.status === "loading"
+            ? "Đang tải quyền riêng tư..."
+            : "Không thể tải quyền riêng tư lúc này."}
+        </div>
+      ) : (
+        groups.map((group) => {
+          const Icon = group.icon;
+          return (
+            <section key={group.title} className="mt-5">
+              <h2 className="mb-2.5 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                <Icon className="h-4 w-4 text-primary" /> {group.title}
+              </h2>
+              <div className="divide-y divide-border/70 overflow-hidden rounded-3xl border border-border/70 bg-card">
+                {group.rows.map((row) => (
+                  <div key={row.key} className="flex items-center gap-3 p-4">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{row.label}</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">{row.sub}</p>
+                    </div>
+                    <Switch
+                      checked={settings[row.key]}
+                      disabled={saving}
+                      onCheckedChange={(value) =>
+                        void privacy.updateSettings({
+                          [row.key]: value,
+                        })
+                      }
+                      aria-label={row.label}
+                    />
                   </div>
-                  <Switch
-                    checked={on[r.key] ?? false}
-                    onCheckedChange={(v) => setOn((s) => ({ ...s, [r.key]: v }))}
-                    aria-label={r.label}
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-      })}
+                ))}
+              </div>
+            </section>
+          );
+        })
+      )}
 
       <section className="mt-5 space-y-2">
         <div className="rounded-2xl border border-border/70 bg-card p-4">

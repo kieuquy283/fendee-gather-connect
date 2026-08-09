@@ -152,11 +152,20 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  html:focus-within {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     overscroll-behavior-y: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
   }
 
   h1,
@@ -179,4 +188,19 @@
 
 @utility radar-sweep {
   animation: fendee-radar-sweep 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

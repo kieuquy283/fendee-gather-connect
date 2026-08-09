@@ -1,45 +1,57 @@
-# Fendee Connect
+# Fendee
 
-Thiết kế app mobile tên Fendee cho người trẻ, phong cách dark red / black gradient theo logo và demo UI đã cung cấp. App giúp người dùng chia sẻ trạng thái ngắn kèm vị trí, mời bạn bè đến gặp (Gather), khám phá người đang Public ở gần, và kết nối dựa trên profile, sở thích, “Tôi có thể giúp gì” và “Tôi đang cần giúp gì”. App không phải app hẹn hò, không theo dõi vị trí liên tục, không cho phép tương tác vô danh hoàn toàn.
+Fendee là frontend mobile-first cho các luồng:
 
-Tạo full flow từ splash, onboarding, signup/login, setup profile, add friend qua link/QR, home feed, create Gather, chọn người nhận, chọn thời lượng, preview, Gather detail, Nearby discovery, filters, other profile, friend requests, friends list, chat, notifications, privacy settings, block/report. Dùng bottom navigation gồm Home, Nearby, Gather, Chat, Profile. Tập trung UX privacy-first: vị trí mặc định tắt, Public/Nearby phải bật chủ động, không hiển thị tọa độ chính xác cho người lạ, chỉ hiển thị khoảng cách tương đối, “Ẩn khỏi Nearby” không phải “Ẩn danh”. Tạo đầy đủ empty states, permission states, expired states.
+- Nearby và hiện diện theo khu vực gần đúng
+- Snapshot vị trí một lần cho bạn bè
+- Gather với mô hình `Cùng tạo` và `Mời tham gia`
+- Chat, hồ sơ, bạn bè, thông báo, quyền riêng tư và widget
 
-Thiết kế thêm widget ngoài home screen của điện thoại. Widget là bản thu nhỏ của app, hiển thị nhanh Gather của bạn bè hoặc một người có độ phù hợp cao trong phạm vi. Thiết kế small / medium / large widget với deep link vào app. Small widget hiển thị 1 update ưu tiên, medium hiển thị 2–3 thẻ, large hiển thị danh sách ngắn và CTA nhanh như “Tạo Gather” và “Xem Nearby”.
+Ứng dụng hiện vẫn là frontend prototype chạy được cục bộ. Không có backend production, không có nhà cung cấp danh tính thật, không có thực thi quyền trên server, và không có hạ tầng presence/push thực.
 
-Hãy tạo UI kit đồng bộ, màn hình high-fidelity, prototype flow hoàn chỉnh, visual trẻ trung hiện đại, card bo tròn, avatar tròn, text tiếng Việt, CTA rõ ràng, ưu tiên hành động nhanh trong 10–15 giây.
+## Môi trường phát triển
 
-dựa trên logo cung cấp, theme chủ yếu được sử dụng là dark và light như các sản phẩm hiện nay, chỉ một số thành phần, button nhỏ có màu đỏ như logo
+Yêu cầu:
 
-This project was built with [Lovable](https://lovable.dev).
+- Node.js 20+
+- npm
 
-**Live app**: https://fendee-gather-connect.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/e0fecdd6-39d0-456f-b034-096e4f38fcaf).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Chạy local:
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+npm install
 npm run dev
 ```
 
-## Gather V2 Product Model
+Build và kiểm tra:
 
-Gather has two separate people models:
+```sh
+npm run typecheck
+npm run lint
+npm run build
+npm run test:gather
+npm run test:gather:visual
+npm run test:e2e
+```
 
-- Co-hosts create and manage a Gather with the owner. The owner is always an accepted host. Invited co-hosts stay pending until they accept.
-- Invitees receive an invitation to attend. Their RSVP is tracked separately as sent, seen, going, maybe, or declined.
+## Ghi chú sản phẩm
 
-The creation flow remains four steps: content/place, people, duration, and privacy preview. The people step is split into `Cung tao Gather` and `Moi tham gia`. Invitation audiences are resolved to an immutable recipient snapshot at send time, with duplicate recipients and blocked users removed.
+Một số nguyên tắc Fendee đang được giữ cố định trong frontend:
 
-Owner and co-host permissions are enforced in the Gather domain store, not only through hidden UI. Expired or ended Gathers stop accepting new RSVP and no longer display as active.
+- Nearby không phải bản đồ.
+- Người lạ chỉ thấy khoảng cách tương đối và nhãn địa điểm gần đúng.
+- Bạn bè thấy snapshot vị trí chia sẻ thủ công, không phải theo dõi liên tục.
+- Gather phân biệt rõ co-host và người được mời.
+- Block/report/privacy hiện mới là logic frontend để phục vụ QA và prototype UX.
+
+## Cấu trúc chính
+
+- `src/routes/`: các màn hình ứng dụng
+- `src/components/fendee/`: shell, card, sheet, Nearby, Presence, Gather UI
+- `src/lib/`: auth dev adapter, privacy store, presence store, gather store, authorization policies
+- `tests/gather-v2/`: Playwright functional, visual và E2E coverage
+- `reports/mobile-review/`: báo cáo review và bằng chứng Phase A/B/C
+
+## Lovable
+
+Repo này đang đồng bộ với Lovable. Tránh rewrite lịch sử đã push như rebase/squash/amend trên commit đã được publish.

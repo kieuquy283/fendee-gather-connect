@@ -5,6 +5,9 @@ import { AppShell } from "@/components/fendee/AppShell";
 import { GatherCard } from "@/components/fendee/cards";
 import { EmptyState, TopBar } from "@/components/fendee/ui";
 import { useGatherStore } from "@/lib/gather-store";
+import { canViewGather } from "@/lib/authorization";
+import { useAuth } from "@/lib/auth";
+import { usePrivacy } from "@/lib/privacy-store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -25,8 +28,15 @@ export const Route = createFileRoute("/gather/")({
 
 function GatherList() {
   const store = useGatherStore();
+  const auth = useAuth();
+  const privacy = usePrivacy();
+  const actor = {
+    id: auth.user?.id ?? "anonymous",
+    authenticated: auth.status === "authenticated",
+  };
   const [tab, setTab] = useState<"live" | "mine" | "expired">("live");
   const list = store.gathers.filter((gather) => {
+    if (!canViewGather(actor, gather, { blockedUserIds: privacy.blockedUserIds })) return false;
     const isMine =
       gather.ownerId === store.currentUserId ||
       gather.hosts.some(

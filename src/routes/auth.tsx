@@ -1,16 +1,17 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Lock, Phone } from "lucide-react";
+import { Lock, Mail, Phone } from "lucide-react";
 import logo from "@/assets/fendee-logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Đăng nhập Fendee — Tài khoản của bạn" },
+      { title: "Đăng nhập Fendee - Tài khoản của bạn" },
       {
         name: "description",
         content: "Đăng nhập hoặc tạo tài khoản Fendee để chia sẻ trạng thái và tạo Gather.",
@@ -23,7 +24,28 @@ export const Route = createFileRoute("/auth")({
 });
 
 function Auth() {
+  const auth = useAuth();
+  const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "signup">("signup");
+  const [email, setEmail] = useState("ban@email.com");
+  const [password, setPassword] = useState("password123");
+  const [phone, setPhone] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const signingIn = auth.signInState.status === "loading";
+
+  const submit = async () => {
+    setError(null);
+    if (!email.trim() || !password.trim()) {
+      setError("Email và mật khẩu là bắt buộc.");
+      return;
+    }
+    try {
+      await auth.signIn({ email, password });
+      navigate({ to: mode === "signup" ? "/setup-profile" : "/home" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Đăng nhập thất bại.");
+    }
+  };
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col justify-center px-6 py-12">
@@ -33,7 +55,7 @@ function Auth() {
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {mode === "signup"
-          ? "Chỉ mất 30 giây. Bạn có thể ẩn mọi thứ sau đó."
+          ? "Bạn có thể hoàn thiện hồ sơ sau."
           : "Đăng nhập để xem bạn bè đang ở đâu."}
       </p>
 
@@ -41,7 +63,9 @@ function Auth() {
         {(["signup", "login"] as const).map((m) => (
           <button
             key={m}
+            type="button"
             onClick={() => setMode(m)}
+            disabled={signingIn}
             className={cn(
               "rounded-full py-2 text-sm font-medium transition-colors",
               mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground",
@@ -54,8 +78,9 @@ function Auth() {
 
       <form
         className="mt-6 space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault();
+        onSubmit={(event) => {
+          event.preventDefault();
+          void submit();
         }}
       >
         {mode === "signup" && (
@@ -63,7 +88,13 @@ function Auth() {
             <Label htmlFor="phone">Số điện thoại</Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="phone" placeholder="09xx xxx xxx" className="h-12 rounded-2xl pl-10" />
+              <Input
+                id="phone"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                placeholder="09xx xxx xxx"
+                className="h-12 rounded-2xl pl-10"
+              />
             </div>
           </div>
         )}
@@ -74,6 +105,8 @@ function Auth() {
             <Input
               id="email"
               type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               placeholder="ban@email.com"
               className="h-12 rounded-2xl pl-10"
             />
@@ -86,35 +119,69 @@ function Auth() {
             <Input
               id="password"
               type="password"
-              placeholder="••••••••"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="password"
               className="h-12 rounded-2xl pl-10"
             />
           </div>
         </div>
 
-        <Button size="lg" className="w-full rounded-full" asChild>
-          <Link to={mode === "signup" ? "/setup-profile" : "/home"}>
-            {mode === "signup" ? "Tiếp tục" : "Đăng nhập"}
-          </Link>
+        {(error || auth.signInState.error) && (
+          <p role="alert" className="rounded-2xl bg-warn/10 p-3 text-xs text-warn-foreground">
+            {error ?? auth.signInState.error}
+          </p>
+        )}
+
+        <Button size="lg" className="w-full rounded-full" type="submit" disabled={signingIn}>
+          {signingIn ? "Đang xử lý..." : mode === "signup" ? "Tiếp tục" : "Đăng nhập"}
         </Button>
       </form>
 
       <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-        <span className="h-px flex-1 bg-border" /> hoặc <span className="h-px flex-1 bg-border" />
+        <span className="h-px flex-1 bg-border" /> hoac <span className="h-px flex-1 bg-border" />
       </div>
 
       <div className="space-y-3">
-        <Button variant="secondary" size="lg" className="w-full rounded-full" asChild>
-          <Link to="/setup-profile">Tiếp tục với Google</Link>
+        <Button
+          variant="secondary"
+          size="lg"
+          type="button"
+          className="w-full rounded-full"
+          disabled={signingIn}
+          onClick={() =>
+            void auth
+              .signIn({ email: "google-dev@fendee.local", password: "dev" })
+              .then(() => navigate({ to: "/setup-profile" }))
+              .catch((err) => setError(err instanceof Error ? err.message : "Đăng nhập thất bại."))
+          }
+        >
+          Tiếp tục với Google
         </Button>
-        <Button variant="secondary" size="lg" className="w-full rounded-full" asChild>
-          <Link to="/setup-profile">Tiếp tục với Apple</Link>
+        <Button
+          variant="secondary"
+          size="lg"
+          type="button"
+          className="w-full rounded-full"
+          disabled={signingIn}
+          onClick={() =>
+            void auth
+              .signIn({ email: "apple-dev@fendee.local", password: "dev" })
+              .then(() => navigate({ to: "/setup-profile" }))
+              .catch((err) => setError(err instanceof Error ? err.message : "Đăng nhập thất bại."))
+          }
+        >
+          Tiếp tục với Apple
         </Button>
       </div>
 
       <p className="mt-8 text-center text-[11px] leading-relaxed text-muted-foreground">
-        Fendee không cho phép tài khoản vô danh hoàn toàn. Mọi hồ sơ đều có tên và ảnh để cộng đồng
+        Fendee không cho phép tài khoản vô danh hoàn toàn. Mỗi hồ sơ đều có tên và ảnh để cộng đồng
         an toàn hơn.
+      </p>
+      <p className="mt-3 text-center text-[10px] text-muted-foreground">
+        Chế độ đăng nhập hiện tại chỉ là phiên cục bộ cho môi trường frontend trước khi tích hợp nhà
+        cung cấp danh tính thật.
       </p>
     </div>
   );

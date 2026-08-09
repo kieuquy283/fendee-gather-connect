@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EyeOff, MapPin, Radio, ShieldCheck, SlidersHorizontal, WifiOff } from "lucide-react";
 import { AppShell } from "@/components/fendee/AppShell";
 import { EmptyState, SectionTitle, TopBar } from "@/components/fendee/ui";
@@ -19,7 +19,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { getPresence, nearbyFar, nearbyMarkers, type PresencePerson } from "@/lib/fendee-presence";
+import { getNearbyPeopleFn } from "@/lib/presence.functions";
 import { usePresence } from "@/lib/presence-store";
+import { usePrivacy } from "@/lib/privacy-store";
 
 export const Route = createFileRoute("/nearby/")({
   head: () => ({
@@ -37,28 +39,50 @@ export const Route = createFileRoute("/nearby/")({
 
 function Nearby() {
   const presence = usePresence();
+  const privacy = usePrivacy();
   const [configOpen, setConfigOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [stopOpen, setStopOpen] = useState(false);
   const [pick, setPick] = useState<NearbyPick | null>(null);
   const [preview, setPreview] = useState<PresencePerson | null>(null);
+  const [serverMarkers, setServerMarkers] = useState(nearbyMarkers);
 
-  const farPeople = nearbyFar.map(getPresence).filter(Boolean) as PresencePerson[];
+  const farPeople = nearbyFar
+    .map(getPresence)
+    .filter((person): person is PresencePerson =>
+      Boolean(person && !privacy.blockedUserIds.includes(person.id)),
+    );
   const status = presence.presenceSession?.status ?? "off";
   const activeNearby = presence.isPresenceEnabled && Boolean(presence.nearbyPresenceLocation);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!activeNearby) {
+      setServerMarkers([]);
+      return;
+    }
+    void getNearbyPeopleFn().then((markers) => {
+      if (!cancelled) {
+        setServerMarkers(
+          markers.map((marker) => ({
+            id: marker.userId,
+            x: marker.x,
+            y: marker.y,
+            meters: marker.meters,
+            place: marker.place,
+          })),
+        );
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeNearby, presence.nearbyPresenceLocation?.zone.id, presence.presenceSession?.id]);
+
   const visibleMarkers = useMemo(() => {
     if (!activeNearby) return [];
-    if (presence.nearbyPresenceLocation?.zone.id === "area-c") return [];
-    if (presence.nearbyPresenceLocation?.zone.id === "area-b") {
-      return nearbyMarkers.map((marker, index) => ({
-        ...marker,
-        x: 100 - marker.x,
-        y: index % 2 === 0 ? marker.y + 4 : marker.y - 4,
-        place: presence.nearbyPresenceLocation?.zone.nearbyLabel ?? marker.place,
-      }));
-    }
-    return nearbyMarkers;
-  }, [activeNearby, presence.nearbyPresenceLocation?.zone]);
+    return serverMarkers.filter((marker) => !privacy.blockedUserIds.includes(marker.id));
+  }, [activeNearby, privacy.blockedUserIds, serverMarkers]);
 
   return (
     <AppShell>
@@ -82,15 +106,15 @@ function Nearby() {
             <Radio className="h-4 w-4" />
           </span>
           <div>
-            <p className="text-sm font-semibold">Presence session</p>
+            <p className="text-sm font-semibold">Phiên hiện diện</p>
             <p className="text-xs text-muted-foreground">
               {presence.isPresenceEnabled
                 ? status === "starting"
-                  ? "Presence Starting"
-                  : `Nearby ${presence.nearbyPresenceLocation?.zone.shortLabel ?? "hidden"}`
+                  ? "Đang bật hiện diện"
+                  : `Nearby ${presence.nearbyPresenceLocation?.zone.shortLabel ?? "đang ẩn"}`
                 : status === "expired"
-                  ? "Presence Expired"
-                  : "Location Off"}
+                  ? "Đã hết hạn"
+                  : "Đang tắt vị trí"}
             </p>
           </div>
         </div>
@@ -104,15 +128,11 @@ function Nearby() {
         <div className="mt-3">
           <StateCard
             tone="warn"
-            title="Permission Required"
-            body="Location permission is needed to start Nearby presence. This prototype grants permission when you continue."
+            title="Cần quyền vị trí"
+            body="Nearby cần quyền vị trí để bật hiện diện. Bản demo local vẫn giữ cơ chế mô phỏng cho QA."
             actions={
-              <Button
-                size="sm"
-                className="rounded-full"
-                onClick={() => presence.simulatePermission("prompt")}
-              >
-                Reset permission prompt
+              <Button size="sm" className="rounded-full" onClick={() => setConfigOpen(true)}>
+                Xem cách chia sẻ
               </Button>
             }
           />
@@ -123,66 +143,54 @@ function Nearby() {
         <div className="mt-3">
           <StateCard
             tone="warn"
-            title="Location Permission Lost"
-            body="Nearby presence is hidden and the active session is offline until permission returns."
+            title="Mất quyền vị trí"
+            body="Nearby đã ẩn bạn và phiên hiện diện tạm ngoại tuyến cho đến khi quyền vị trí quay lại."
             actions={
               <Button
                 size="sm"
                 className="rounded-full"
                 onClick={() => presence.simulatePermission("granted")}
               >
-                Restore permission
+                Khôi phục quyền
               </Button>
             }
           />
         </div>
       )}
 
-      {!presence.isPresenceEnabled ? (
+      {!presence.isPresenceEnabled || presence.permission === "lost" ? (
         <div className="mt-4 space-y-3">
           <EmptyState
             icon={<EyeOff className="h-6 w-6" />}
-            title={status === "expired" ? "Presence Expired" : "Location Off"}
-            body="Nearby stranger presence and friend shared location are both inactive."
+            title={status === "expired" ? "Phiên hiện diện đã hết hạn" : "Vị trí đang tắt"}
+            body="Nearby và vị trí chia sẻ cho bạn bè đều đang tắt. Bạn chỉ xuất hiện khi chủ động bật."
             action={
               <Button className="rounded-full" onClick={() => setConfigOpen(true)}>
-                Enable presence
+                Bật hiện diện
               </Button>
             }
           />
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="secondary"
-              className="rounded-full"
-              onClick={() => presence.simulatePermission("denied")}
-            >
-              Permission Required
-            </Button>
-            <Button variant="secondary" className="rounded-full" onClick={presence.expirePresence}>
-              Presence Expired
-            </Button>
-          </div>
         </div>
       ) : (
         <>
           <section className="mt-4">
-            <SectionTitle>Nearby frame - 100m</SectionTitle>
+            <SectionTitle>Khung Nearby · 100m</SectionTitle>
             <NearbyRadar markers={visibleMarkers} onPick={setPick} />
             <PresenceLegend />
             <p className="mt-2 text-[11px] text-muted-foreground">
-              This is a rounded spatial frame for relative proximity only. It has no streets, map
-              tiles, coordinates, or navigation.
+              Đây là khung không gian tương đối để hiểu ai đang ở gần. Không có bản đồ, tuyến đường,
+              tọa độ hay chỉ đường.
             </p>
           </section>
 
           {status === "starting" && (
             <div className="mt-3">
               <StateCard
-                title="Presence Starting"
-                body="Requesting location permission, creating a friend snapshot, notifying the audience, and publishing Nearby."
+                title="Đang bật hiện diện"
+                body="Đang xin quyền vị trí, tạo điểm chia sẻ cho bạn bè và xuất hiện trong Nearby."
                 actions={
                   <Button size="sm" variant="secondary" className="rounded-full" disabled>
-                    Starting...
+                    Đang xử lý...
                   </Button>
                 }
               />
@@ -193,8 +201,8 @@ function Nearby() {
             <div className="mt-3">
               <StateCard
                 tone="warn"
-                title="Moving"
-                body="You have been removed from the previous Nearby area. Strangers cannot see you until a stable area is detected."
+                title="Đang di chuyển"
+                body="Bạn đã rời khu vực Nearby trước đó. Người lạ sẽ chưa thấy bạn cho đến khi khu vực mới ổn định."
                 actions={
                   <>
                     <Button
@@ -202,7 +210,7 @@ function Nearby() {
                       className="rounded-full"
                       onClick={() => presence.handleZoneTransition("area-b")}
                     >
-                      Area B Detected
+                      Khu vực B đã ổn định
                     </Button>
                     <Button
                       size="sm"
@@ -210,7 +218,7 @@ function Nearby() {
                       className="rounded-full"
                       onClick={() => setStopOpen(true)}
                     >
-                      Stop while moving
+                      Tắt hiện diện
                     </Button>
                   </>
                 }
@@ -222,15 +230,15 @@ function Nearby() {
             <div className="mt-3">
               <StateCard
                 tone="warn"
-                title="Offline"
-                body="Device location is unavailable. Nearby is hidden until the device is online again."
+                title="Thiết bị đang ngoại tuyến"
+                body="Không lấy được vị trí thiết bị. Nearby tạm ẩn cho đến khi kết nối quay lại."
                 actions={
                   <Button
                     size="sm"
                     className="rounded-full"
                     onClick={() => presence.setOffline(false)}
                   >
-                    Back online
+                    Kết nối lại
                   </Button>
                 }
               />
@@ -241,11 +249,11 @@ function Nearby() {
             <div className="mt-3">
               <StateCard
                 tone="warn"
-                title="Friend Snapshot Outdated"
-                body="People nearby can see you here. Your friends are still seeing your previously shared location."
+                title="Điểm chia sẻ cho bạn bè đã cũ"
+                body="Người ở gần đang thấy bạn tại đây, nhưng bạn bè vẫn đang thấy vị trí chia sẻ trước đó."
                 actions={
                   <Button size="sm" className="rounded-full" onClick={() => setUpdateOpen(true)}>
-                    Update location for friends
+                    Cập nhật cho bạn bè
                   </Button>
                 }
               />
@@ -255,8 +263,8 @@ function Nearby() {
           {visibleMarkers.length === 0 && activeNearby && (
             <div className="mt-3">
               <StateCard
-                title="No nearby users"
-                body="Your Nearby presence is active for this area, but no prototype users are visible in range."
+                title="Chưa có ai trong Nearby"
+                body="Hiện diện của bạn đang bật, nhưng chưa có người dùng mô phỏng nào ở trong phạm vi gần."
                 actions={
                   <Button
                     size="sm"
@@ -264,7 +272,7 @@ function Nearby() {
                     className="rounded-full"
                     onClick={() => presence.handleZoneTransition("area-a")}
                   >
-                    Return to Area A
+                    Quay lại khu vực A
                   </Button>
                 }
               />
@@ -272,7 +280,7 @@ function Nearby() {
           )}
 
           <section className="mt-6">
-            <SectionTitle>Friends outside Nearby range</SectionTitle>
+            <SectionTitle>Bạn bè ngoài phạm vi Nearby</SectionTitle>
             <PresenceRail people={farPeople} onPick={setPreview} />
             <div className="mt-3 space-y-3">
               {farPeople.map((p) => (
@@ -281,68 +289,79 @@ function Nearby() {
             </div>
           </section>
 
-          <section className="mt-6 grid grid-cols-2 gap-2">
-            <Button
-              variant="secondary"
-              className="rounded-full"
-              onClick={() =>
-                presence.handleDevicePosition({
-                  zoneId: "area-a",
-                  accuracyMeters: 24,
-                  dwellMs: 12000,
-                })
-              }
-            >
-              Move outside A
-            </Button>
-            <Button
-              variant="secondary"
-              className="rounded-full"
-              onClick={() => presence.handleZoneTransition("area-b")}
-            >
-              Stable Area B
-            </Button>
-            <Button
-              variant="secondary"
-              className="rounded-full"
-              onClick={() =>
-                presence.handleDevicePosition({
-                  zoneId: "area-b",
-                  accuracyMeters: 140,
-                  dwellMs: 160000,
-                })
-              }
-            >
-              GPS inaccurate
-            </Button>
-            <Button
-              variant="secondary"
-              className="rounded-full"
-              onClick={() => presence.setOffline(true)}
-            >
-              <WifiOff className="h-4 w-4" /> Offline
-            </Button>
-            <Button
-              variant="secondary"
-              className="rounded-full"
-              onClick={() =>
-                presence.handleDevicePosition({
-                  zoneId: "area-c",
-                  accuracyMeters: 24,
-                  dwellMs: 160000,
-                })
-              }
-            >
-              No nearby users
-            </Button>
-            <Button variant="ghost" className="rounded-full" onClick={() => setStopOpen(true)}>
-              Stop presence
-            </Button>
+          <section className="mt-6 rounded-3xl border border-dashed border-border bg-surface/60 p-4">
+            <p className="text-sm font-semibold">Công cụ mô phỏng Nearby</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Dùng cho QA local trước backend và hạ tầng vị trí thật. Không phải thao tác sản phẩm
+              chính.
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Button
+                variant="secondary"
+                className="rounded-full"
+                onClick={() =>
+                  presence.handleDevicePosition({
+                    zoneId: "area-a",
+                    accuracyMeters: 24,
+                    dwellMs: 12000,
+                  })
+                }
+              >
+                Rời khu A
+              </Button>
+              <Button
+                variant="secondary"
+                className="rounded-full"
+                onClick={() => presence.handleZoneTransition("area-b")}
+              >
+                Ổn định ở khu B
+              </Button>
+              <Button
+                variant="secondary"
+                className="rounded-full"
+                onClick={() =>
+                  presence.handleDevicePosition({
+                    zoneId: "area-b",
+                    accuracyMeters: 140,
+                    dwellMs: 160000,
+                  })
+                }
+              >
+                GPS kém chính xác
+              </Button>
+              <Button
+                variant="secondary"
+                className="rounded-full"
+                onClick={() => presence.setOffline(true)}
+              >
+                <WifiOff className="h-4 w-4" /> Ngoại tuyến
+              </Button>
+              <Button
+                variant="secondary"
+                className="rounded-full"
+                onClick={() =>
+                  presence.handleDevicePosition({
+                    zoneId: "area-c",
+                    accuracyMeters: 24,
+                    dwellMs: 160000,
+                  })
+                }
+              >
+                Không có ai gần
+              </Button>
+              <Button
+                variant="ghost"
+                className="rounded-full"
+                onClick={() => presence.expirePresence()}
+              >
+                Hết hạn phiên
+              </Button>
+            </div>
           </section>
 
           <p className="mb-4 mt-6 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
-            Strangers see only rounded distance and relative position.
+            Người lạ chỉ thấy khoảng cách làm tròn và vị trí tương đối.
           </p>
         </>
       )}
@@ -350,7 +369,9 @@ function Nearby() {
       <PresenceConfigSheet
         open={configOpen}
         onOpenChange={setConfigOpen}
-        onConfirm={(audience) => void presence.startPresence({ audience })}
+        busy={presence.actionState.start.status === "loading"}
+        error={presence.actionState.start.error}
+        onConfirm={(audience) => presence.startPresence({ audience })}
       />
       <UpdateLocationSheet
         open={updateOpen}
@@ -358,11 +379,15 @@ function Nearby() {
         previous={presence.friendLocationSnapshot?.zone ?? null}
         next={presence.deviceLocation.zone}
         audienceCount={presence.audienceCount}
+        busy={presence.actionState.updateFriendLocation.status === "loading"}
+        error={presence.actionState.updateFriendLocation.error}
         onConfirm={(notifyAgain) => presence.updateFriendLocation({ notifyAgain })}
       />
       <StopPresenceSheet
         open={stopOpen}
         onOpenChange={setStopOpen}
+        busy={presence.actionState.stop.status === "loading"}
+        error={presence.actionState.stop.error}
         onConfirm={presence.stopPresence}
       />
       <NearbyMarkerSheet pick={pick} onOpenChange={(v) => !v && setPick(null)} />

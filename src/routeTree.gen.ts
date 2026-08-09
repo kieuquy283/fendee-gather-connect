@@ -31,7 +31,13 @@ import { Route as ProfileIndexRouteImport } from './routes/profile.index'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as SettingsIndexRouteImport } from './routes/settings.index'
 import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
+import { Route as ApiAuthAccountDeletionRouteImport } from './routes/api/auth/account-deletion'
+import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
+import { Route as ApiAuthSessionRouteImport } from './routes/api/auth/session'
+import { Route as ApiAuthSignInRouteImport } from './routes/api/auth/sign-in'
+import { Route as ApiAuthSignOutRouteImport } from './routes/api/auth/sign-out'
 import { Route as GatherIdManageRouteImport } from './routes/gather.$id_.manage'
+import { Route as ApiDevAuthSessionRouteImport } from './routes/api/dev/auth/session'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -143,9 +149,39 @@ const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
   path: '/settings/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthAccountDeletionRoute = ApiAuthAccountDeletionRouteImport.update({
+  id: '/api/auth/account-deletion',
+  path: '/api/auth/account-deletion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
+  id: '/api/auth/me',
+  path: '/api/auth/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSessionRoute = ApiAuthSessionRouteImport.update({
+  id: '/api/auth/session',
+  path: '/api/auth/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSignInRoute = ApiAuthSignInRouteImport.update({
+  id: '/api/auth/sign-in',
+  path: '/api/auth/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSignOutRoute = ApiAuthSignOutRouteImport.update({
+  id: '/api/auth/sign-out',
+  path: '/api/auth/sign-out',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GatherIdManageRoute = GatherIdManageRouteImport.update({
   id: '/gather/$id_/manage',
   path: '/gather/$id/manage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDevAuthSessionRoute = ApiDevAuthSessionRouteImport.update({
+  id: '/api/dev/auth/session',
+  path: '/api/dev/auth/session',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -172,7 +208,13 @@ export interface FileRoutesByFullPath {
   '/nearby/': typeof NearbyIndexRoute
   '/profile/': typeof ProfileIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/api/auth/account-deletion': typeof ApiAuthAccountDeletionRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/sign-in': typeof ApiAuthSignInRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/gather/$id/manage': typeof GatherIdManageRoute
+  '/api/dev/auth/session': typeof ApiDevAuthSessionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -197,7 +239,13 @@ export interface FileRoutesByTo {
   '/nearby': typeof NearbyIndexRoute
   '/profile': typeof ProfileIndexRoute
   '/settings': typeof SettingsIndexRoute
+  '/api/auth/account-deletion': typeof ApiAuthAccountDeletionRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/sign-in': typeof ApiAuthSignInRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/gather/$id/manage': typeof GatherIdManageRoute
+  '/api/dev/auth/session': typeof ApiDevAuthSessionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -223,7 +271,13 @@ export interface FileRoutesById {
   '/nearby/': typeof NearbyIndexRoute
   '/profile/': typeof ProfileIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/api/auth/account-deletion': typeof ApiAuthAccountDeletionRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/sign-in': typeof ApiAuthSignInRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/gather/$id_/manage': typeof GatherIdManageRoute
+  '/api/dev/auth/session': typeof ApiDevAuthSessionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -250,7 +304,13 @@ export interface FileRouteTypes {
     | '/nearby/'
     | '/profile/'
     | '/settings/'
+    | '/api/auth/account-deletion'
+    | '/api/auth/me'
+    | '/api/auth/session'
+    | '/api/auth/sign-in'
+    | '/api/auth/sign-out'
     | '/gather/$id/manage'
+    | '/api/dev/auth/session'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -275,7 +335,13 @@ export interface FileRouteTypes {
     | '/nearby'
     | '/profile'
     | '/settings'
+    | '/api/auth/account-deletion'
+    | '/api/auth/me'
+    | '/api/auth/session'
+    | '/api/auth/sign-in'
+    | '/api/auth/sign-out'
     | '/gather/$id/manage'
+    | '/api/dev/auth/session'
   id:
     | '__root__'
     | '/'
@@ -300,7 +366,13 @@ export interface FileRouteTypes {
     | '/nearby/'
     | '/profile/'
     | '/settings/'
+    | '/api/auth/account-deletion'
+    | '/api/auth/me'
+    | '/api/auth/session'
+    | '/api/auth/sign-in'
+    | '/api/auth/sign-out'
     | '/gather/$id_/manage'
+    | '/api/dev/auth/session'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -326,7 +398,13 @@ export interface RootRouteChildren {
   NearbyIndexRoute: typeof NearbyIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
+  ApiAuthAccountDeletionRoute: typeof ApiAuthAccountDeletionRoute
+  ApiAuthMeRoute: typeof ApiAuthMeRoute
+  ApiAuthSessionRoute: typeof ApiAuthSessionRoute
+  ApiAuthSignInRoute: typeof ApiAuthSignInRoute
+  ApiAuthSignOutRoute: typeof ApiAuthSignOutRoute
   GatherIdManageRoute: typeof GatherIdManageRoute
+  ApiDevAuthSessionRoute: typeof ApiDevAuthSessionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -485,11 +563,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsPrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/account-deletion': {
+      id: '/api/auth/account-deletion'
+      path: '/api/auth/account-deletion'
+      fullPath: '/api/auth/account-deletion'
+      preLoaderRoute: typeof ApiAuthAccountDeletionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/me': {
+      id: '/api/auth/me'
+      path: '/api/auth/me'
+      fullPath: '/api/auth/me'
+      preLoaderRoute: typeof ApiAuthMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/session': {
+      id: '/api/auth/session'
+      path: '/api/auth/session'
+      fullPath: '/api/auth/session'
+      preLoaderRoute: typeof ApiAuthSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/sign-in': {
+      id: '/api/auth/sign-in'
+      path: '/api/auth/sign-in'
+      fullPath: '/api/auth/sign-in'
+      preLoaderRoute: typeof ApiAuthSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/sign-out': {
+      id: '/api/auth/sign-out'
+      path: '/api/auth/sign-out'
+      fullPath: '/api/auth/sign-out'
+      preLoaderRoute: typeof ApiAuthSignOutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gather/$id_/manage': {
       id: '/gather/$id_/manage'
       path: '/gather/$id/manage'
       fullPath: '/gather/$id/manage'
       preLoaderRoute: typeof GatherIdManageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dev/auth/session': {
+      id: '/api/dev/auth/session'
+      path: '/api/dev/auth/session'
+      fullPath: '/api/dev/auth/session'
+      preLoaderRoute: typeof ApiDevAuthSessionRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -518,7 +638,13 @@ const rootRouteChildren: RootRouteChildren = {
   NearbyIndexRoute: NearbyIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
+  ApiAuthAccountDeletionRoute: ApiAuthAccountDeletionRoute,
+  ApiAuthMeRoute: ApiAuthMeRoute,
+  ApiAuthSessionRoute: ApiAuthSessionRoute,
+  ApiAuthSignInRoute: ApiAuthSignInRoute,
+  ApiAuthSignOutRoute: ApiAuthSignOutRoute,
   GatherIdManageRoute: GatherIdManageRoute,
+  ApiDevAuthSessionRoute: ApiDevAuthSessionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

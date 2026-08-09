@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Clock, MapPin, Share2, Users, X } from "lucide-react";
 import { AppShell } from "@/components/fendee/AppShell";
@@ -11,9 +11,12 @@ import {
   GatherRSVPSummary,
   MessageHostButton,
 } from "@/components/fendee/gather-v2";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
+import { canViewGather } from "@/lib/authorization";
 import { getPerson, me } from "@/lib/fendee-data";
 import { useGatherStore, type GatherPermission } from "@/lib/gather-store";
-import { Button } from "@/components/ui/button";
+import { usePrivacy } from "@/lib/privacy-store";
 
 export const Route = createFileRoute("/gather/$id")({
   head: () => ({
@@ -28,6 +31,8 @@ export const Route = createFileRoute("/gather/$id")({
 function GatherDetail() {
   const { id } = Route.useParams();
   const store = useGatherStore();
+  const auth = useAuth();
+  const privacy = usePrivacy();
   const gather = store.getGather(id);
   const [manageOpen, setManageOpen] = useState(false);
   const [denied, setDenied] = useState<string | null>(null);
@@ -36,11 +41,32 @@ function GatherDetail() {
     return (
       <AppShell>
         <TopBar title="Chi tiết Gather" back="/gather" />
-        <EmptyState
-          icon={<X className="h-6 w-6" />}
-          title="Gather không tồn tại"
-          body="Gather này đã bị xoá hoặc chưa được đồng bộ trong phiên hiện tại."
-        />
+        <div data-testid="gather-access-denied">
+          <EmptyState
+            icon={<X className="h-6 w-6" />}
+            title="Gather không khả dụng"
+            body="Gather này không hiển thị trong phiên của bạn. Liên kết có thể không hợp lệ hoặc bạn không có quyền truy cập."
+          />
+        </div>
+      </AppShell>
+    );
+  }
+
+  const actor = {
+    id: auth.user?.id ?? "anonymous",
+    authenticated: auth.status === "authenticated",
+  };
+  if (!canViewGather(actor, gather, { blockedUserIds: privacy.blockedUserIds })) {
+    return (
+      <AppShell>
+        <TopBar title="Chi tiết Gather" back="/gather" />
+        <div data-testid="gather-access-denied">
+          <EmptyState
+            icon={<X className="h-6 w-6" />}
+            title="Gather không khả dụng"
+            body="Bạn không có quyền xem Gather này hoặc lời mời không còn khả dụng."
+          />
+        </div>
       </AppShell>
     );
   }
@@ -113,7 +139,7 @@ function GatherDetail() {
               data-testid="cohost-accept"
               className="flex-1 rounded-full"
               onClick={() =>
-                store.respondToCohostInvite(gather.id, store.currentUserId, "accepted")
+                void store.respondToCohostInvite(gather.id, store.currentUserId, "accepted")
               }
             >
               Cùng tạo
@@ -124,7 +150,7 @@ function GatherDetail() {
               data-testid="cohost-decline"
               className="flex-1 rounded-full"
               onClick={() =>
-                store.respondToCohostInvite(gather.id, store.currentUserId, "declined")
+                void store.respondToCohostInvite(gather.id, store.currentUserId, "declined")
               }
             >
               Từ chối
@@ -148,7 +174,7 @@ function GatherDetail() {
       </section>
 
       <section className="mt-4 rounded-3xl border border-border/70 bg-card p-4 shadow-card">
-        <h2 className="mb-3 text-sm font-semibold">RSVP summary</h2>
+        <h2 className="mb-3 text-sm font-semibold">Tóm tắt RSVP</h2>
         <GatherRSVPSummary gather={gather} />
       </section>
 
@@ -161,7 +187,7 @@ function GatherDetail() {
           <GatherInviteeActions
             status={currentInvite.status}
             disabled={inactive}
-            onChange={(status) => store.updateRSVP(gather.id, store.currentUserId, status)}
+            onChange={(status) => void store.updateRSVP(gather.id, store.currentUserId, status)}
           />
           <div className="mt-3">
             <MessageHostButton hostId={gather.ownerId} />
@@ -185,7 +211,7 @@ function GatherDetail() {
               variant="secondary"
               data-testid="owner-only-attempt"
               className="w-full rounded-full"
-              onClick={() => setDenied("Co-host không thể kết thúc hoặc xoá Gather trong V1.")}
+              onClick={() => setDenied("Co-host không thể kết thúc hoặc xóa Gather trong V1.")}
             >
               Thử thao tác owner-only
             </Button>
@@ -202,8 +228,8 @@ function GatherDetail() {
         open={manageOpen}
         onOpenChange={setManageOpen}
         can={canManage}
-        onEnd={() => store.endGather(gather.id, store.currentUserId)}
-        onExpire={() => store.expireGather(gather.id)}
+        onEnd={() => void store.endGather(gather.id, store.currentUserId)}
+        onExpire={() => void store.expireGather(gather.id)}
         onOwnerOnlyAttempt={() => setDenied("Bạn không có quyền quản lý co-host cho Gather này.")}
       />
 

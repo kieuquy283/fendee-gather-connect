@@ -2,6 +2,8 @@
 // No map, no coordinates, no match percentages — only relative distance and
 // concrete reasons why two people might be worth connecting.
 
+import { makeAvatarDataUri } from "./avatar";
+
 export type PresenceState = "gather" | "public" | "friends" | "stale";
 
 export type PresencePerson = {
@@ -24,7 +26,7 @@ export type PresencePerson = {
   interests: string[];
 };
 
-const face = (seed: string) => `https://i.pravatar.cc/240?u=fendee-${seed}`;
+const face = (seed: string, name: string) => makeAvatarDataUri(name, seed);
 
 export const station = {
   name: "The Coffee House Thái Hà",
@@ -41,7 +43,7 @@ export const presencePeople: PresencePerson[] = [
     name: "Minh Tú",
     age: 21,
     role: "Sinh viên Kiến trúc",
-    avatar: face("minhtu"),
+    avatar: face("minhtu", "Minh Tú"),
     short: "Làm đồ án",
     status: "Đang ngồi làm đồ án ở quán cafe",
     distance: "Dưới 1 km",
@@ -60,7 +62,7 @@ export const presencePeople: PresencePerson[] = [
     name: "Hải Đăng",
     age: 23,
     role: "Frontend Developer",
-    avatar: face("hailang"),
+    avatar: face("hailang", "Hải Đăng"),
     short: "Có Gather",
     status: "Ngồi tầng 2, có ổ cắm, ai rảnh qua làm việc cùng",
     distance: "Cùng địa điểm",
@@ -79,7 +81,7 @@ export const presencePeople: PresencePerson[] = [
     name: "Hoàng Lan",
     age: 20,
     role: "Sinh viên Ngoại thương",
-    avatar: face("hoanglan"),
+    avatar: face("hoanglan", "Hoàng Lan"),
     short: "Đang học",
     status: "Ôn thi cuối kỳ, cần chỗ yên tĩnh",
     distance: "1–3 km",
@@ -98,7 +100,7 @@ export const presencePeople: PresencePerson[] = [
     name: "Tuấn Anh",
     age: 24,
     role: "Product Analyst",
-    avatar: face("tuananh"),
+    avatar: face("tuananh", "Tuấn Anh"),
     short: "Tìm teammate",
     status: "Đang tìm teammate cho một side project data",
     distance: "Dưới 1 km",
@@ -117,7 +119,7 @@ export const presencePeople: PresencePerson[] = [
     name: "Khánh Vy",
     age: 22,
     role: "Marketing Intern",
-    avatar: face("khanhvy"),
+    avatar: face("khanhvy", "Khánh Vy"),
     short: "Trạng thái cũ",
     status: "Đi bộ buổi tối quanh khu này",
     distance: "1–3 km",
@@ -136,7 +138,7 @@ export const presencePeople: PresencePerson[] = [
     name: "Gia Long",
     age: 25,
     role: "Nhiếp ảnh tự do",
-    avatar: face("gialong"),
+    avatar: face("gialong", "Gia Long"),
     short: "Đang chụp",
     status: "Rảnh 2 tiếng, muốn chụp thử vài shot chân dung",
     distance: "1–3 km",

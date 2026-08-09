@@ -4,8 +4,11 @@ import { AppShell } from "@/components/fendee/AppShell";
 import { Ava, Chip, EmptyState, TopBar } from "@/components/fendee/ui";
 import { GatherInviteStatus } from "@/components/fendee/gather-v2";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
+import { canManageGather } from "@/lib/authorization";
 import { getPerson, me } from "@/lib/fendee-data";
 import { useGatherStore, type GatherPermission } from "@/lib/gather-store";
+import { usePrivacy } from "@/lib/privacy-store";
 
 export const Route = createFileRoute("/gather/$id_/manage")({
   head: () => ({
@@ -20,17 +23,40 @@ export const Route = createFileRoute("/gather/$id_/manage")({
 function GatherManageRoute() {
   const { id } = Route.useParams();
   const store = useGatherStore();
+  const auth = useAuth();
+  const privacy = usePrivacy();
   const gather = store.getGather(id);
 
   if (!gather) {
     return (
       <AppShell>
         <TopBar title="Quản lý Gather" back="/gather" />
-        <EmptyState
-          icon={<X className="h-6 w-6" />}
-          title="Gather không tồn tại"
-          body="Không thể mở màn hình quản lý cho Gather này."
-        />
+        <div data-testid="gather-manage-denied">
+          <EmptyState
+            icon={<X className="h-6 w-6" />}
+            title="Không có quyền quản lý"
+            body="Gather này không hiển thị trong phiên của bạn, hoặc bạn không có quyền mở màn hình quản lý."
+          />
+        </div>
+      </AppShell>
+    );
+  }
+
+  const actor = {
+    id: auth.user?.id ?? "anonymous",
+    authenticated: auth.status === "authenticated",
+  };
+  if (!canManageGather(actor, gather, { blockedUserIds: privacy.blockedUserIds })) {
+    return (
+      <AppShell>
+        <TopBar title="Quản lý Gather" back="/gather" />
+        <div data-testid="gather-manage-denied">
+          <EmptyState
+            icon={<X className="h-6 w-6" />}
+            title="Không có quyền quản lý"
+            body="Chỉ owner hoặc co-host đã chấp nhận mới có thể mở màn hình này."
+          />
+        </div>
       </AppShell>
     );
   }
@@ -56,37 +82,37 @@ function GatherManageRoute() {
         </p>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Button className="rounded-full" disabled={!can("invite_more")}>
-            <Plus className="h-4 w-4" /> Invite more
+            <Plus className="h-4 w-4" /> Mời thêm
           </Button>
           <Button variant="secondary" className="rounded-full" disabled={!can("edit_content")}>
-            <Edit3 className="h-4 w-4" /> Edit Gather
+            <Edit3 className="h-4 w-4" /> Sửa Gather
           </Button>
           <Button variant="secondary" className="rounded-full" disabled={!can("manage_cohosts")}>
-            <UserCog className="h-4 w-4" /> Manage co-hosts
+            <UserCog className="h-4 w-4" /> Quản lý co-host
           </Button>
           <Button
             variant="secondary"
             className="rounded-full"
             disabled={!can("end_gather")}
-            onClick={() => store.endGather(gather.id, store.currentUserId)}
+            onClick={() => void store.endGather(gather.id, store.currentUserId)}
           >
-            End Gather
+            Kết thúc Gather
           </Button>
         </div>
       </section>
 
       <PeopleSection
-        title="Người cùng tạo - accepted"
+        title="Người cùng tạo - đã chấp nhận"
         ids={acceptedHosts.map((host) => host.personId)}
       />
       <PeopleSection
-        title="Người cùng tạo - pending"
+        title="Người cùng tạo - đang chờ"
         ids={pendingHosts.map((host) => host.personId)}
       />
-      <InviteSection title="Người được mời - going" invites={going} />
-      <InviteSection title="Người được mời - maybe" invites={maybe} />
-      <InviteSection title="Người được mời - declined" invites={declined} />
-      <InviteSection title="Người được mời - no response" invites={noResponse} />
+      <InviteSection title="Người được mời - sẽ tham gia" invites={going} />
+      <InviteSection title="Người được mời - có thể tham gia" invites={maybe} />
+      <InviteSection title="Người được mời - từ chối" invites={declined} />
+      <InviteSection title="Người được mời - chưa phản hồi" invites={noResponse} />
 
       <Button className="mb-4 mt-6 w-full rounded-full" asChild>
         <Link to="/gather/$id" params={{ id }}>
@@ -110,7 +136,7 @@ function PeopleSection({ title, ids }: { title: string; ids: string[] }) {
               <div key={personId} className="flex items-center gap-3 rounded-2xl bg-surface-2 p-3">
                 <Ava src={person.avatar} alt={person.name} size={34} />
                 <span className="min-w-0 flex-1 truncate text-sm font-medium">{person.name}</span>
-                <Chip tone="outline">host</Chip>
+                <Chip tone="outline">co-host</Chip>
               </div>
             );
           })

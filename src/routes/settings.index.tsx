@@ -1,8 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bell, ChevronRight, Eye, HelpCircle, Moon, ShieldAlert, Sun, User } from "lucide-react";
+import {
+  Bell,
+  ChevronRight,
+  Eye,
+  HelpCircle,
+  LogOut,
+  Moon,
+  ShieldAlert,
+  Sun,
+  Trash2,
+  User,
+} from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/fendee/AppShell";
 import { TopBar } from "@/components/fendee/ui";
+import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useAuth } from "@/lib/auth";
+import { usePrivacy } from "@/lib/privacy-store";
 import { useTheme, type Theme } from "@/lib/theme";
 
 export const Route = createFileRoute("/settings/")({
@@ -42,7 +57,13 @@ const rows = [
 ] as const;
 
 function Settings() {
+  const auth = useAuth();
+  const privacy = usePrivacy();
+  const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const loggingOut = auth.signOutState.status === "loading";
+  const requestingDeletion = privacy.actionState.deletion.status === "loading";
+  const accountError = auth.signOutState.error ?? privacy.actionState.deletion.error;
 
   return (
     <AppShell>
@@ -120,6 +141,52 @@ function Settings() {
         <p className="mt-1 text-xs text-muted-foreground">
           Các cài đặt này chỉ áp dụng trên thiết bị hiện tại trong bản demo.
         </p>
+      </section>
+
+      <section className="mt-5 rounded-3xl border border-border/70 bg-card p-4">
+        <p className="flex items-center gap-2 text-sm font-semibold">
+          <ShieldAlert className="h-4 w-4 text-primary" /> Account lifecycle
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Logout revokes the active session and clears user-scoped prototype data on this device.
+          Deletion is still a pending backend request until a production account service is
+          connected.
+        </p>
+        {privacy.deletionRequest && (
+          <p className="mt-3 rounded-2xl bg-warn/10 p-3 text-xs text-warn-foreground">
+            Account deletion requested. Backend enforcement is still required.
+          </p>
+        )}
+        {accountError && (
+          <p role="alert" className="mt-3 rounded-2xl bg-warn/10 p-3 text-xs text-warn-foreground">
+            {accountError}
+          </p>
+        )}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <Button
+            variant="secondary"
+            className="rounded-full"
+            disabled={loggingOut || requestingDeletion}
+            onClick={() =>
+              void auth
+                .signOut()
+                .then(() => {
+                  navigate({ to: "/auth" });
+                })
+                .catch(() => undefined)
+            }
+          >
+            <LogOut className="h-4 w-4" /> {loggingOut ? "Logging out..." : "Logout"}
+          </Button>
+          <Button
+            variant="destructive"
+            className="rounded-full"
+            disabled={loggingOut || requestingDeletion}
+            onClick={() => void privacy.requestAccountDeletion().catch(() => undefined)}
+          >
+            <Trash2 className="h-4 w-4" /> {requestingDeletion ? "Requesting..." : "Delete"}
+          </Button>
+        </div>
       </section>
       <div className="h-4" />
     </AppShell>

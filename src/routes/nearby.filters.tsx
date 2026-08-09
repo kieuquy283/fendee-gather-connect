@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/nearby/filters")({
   head: () => ({
     meta: [
-      { title: "Bộ lọc Nearby — Fendee" },
+      { title: "Bộ lọc Nearby - Fendee" },
       {
         name: "description",
         content:
@@ -71,18 +71,25 @@ function Filters() {
       <section className="mt-4 rounded-3xl border border-border/70 bg-card p-4 shadow-card">
         <Label>Sở thích chung</Label>
         <div className="mt-3 flex flex-wrap gap-2">
-          {interests.map((i) => {
-            const on = picked.includes(i);
+          {interests.map((interest) => {
+            const selected = picked.includes(interest);
             return (
               <button
-                key={i}
-                onClick={() => setPicked((p) => (on ? p.filter((x) => x !== i) : [...p, i]))}
+                key={interest}
+                type="button"
+                onClick={() =>
+                  setPicked((current) =>
+                    selected
+                      ? current.filter((value) => value !== interest)
+                      : [...current, interest],
+                  )
+                }
               >
                 <Chip
-                  tone={on ? "accent" : "outline"}
-                  className={cn("px-3 py-1.5 text-xs", on && "ring-1 ring-primary")}
+                  tone={selected ? "accent" : "outline"}
+                  className={cn("px-3 py-1.5 text-xs", selected && "ring-1 ring-primary")}
                 >
-                  {i}
+                  {interest}
                 </Chip>
               </button>
             );
@@ -95,13 +102,13 @@ function Filters() {
           ["Chỉ hiện người đang online", "Bỏ qua người đã rời khu vực"],
           ["Có thể giúp điều tôi đang cần", "Ưu tiên người khớp với mục “Cần giúp”"],
           ["Ẩn người tôi đã chặn", "Luôn bật để bảo vệ bạn"],
-        ].map(([title, sub], idx) => (
+        ].map(([title, sub], index) => (
           <div key={title} className="flex items-center justify-between rounded-2xl px-3 py-3">
             <div className="pr-4">
               <p className="text-sm font-medium">{title}</p>
               <p className="text-[11px] text-muted-foreground">{sub}</p>
             </div>
-            <Switch defaultChecked={idx !== 0} disabled={idx === 2} />
+            <Switch defaultChecked={index !== 0} disabled={index === 2} />
           </div>
         ))}
       </section>

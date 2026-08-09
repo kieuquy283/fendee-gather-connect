@@ -22,7 +22,7 @@ test.beforeEach(async ({ page }) => {
 test("@gather-visual gather list at mobile widths", async ({ page }, testInfo) => {
   await page.goto("/gather");
   await capture(page, testInfo, `gather-list-${page.viewportSize()?.width}.png`);
-  await expect(page.getByRole("heading", { name: "Gather" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Gather" }).first()).toBeVisible();
 });
 
 test("@gather-visual gather creation wizard captures every step", async ({ page }, testInfo) => {
@@ -77,8 +77,8 @@ test("@gather-visual role detail and manage screenshots", async ({ page }, testI
 
   await page.goto("/gather/qa-owner/manage");
   await capture(page, testInfo, "gather-manage-390.png");
-  await expect(page.getByText(/accepted/i)).toBeVisible();
-  await expect(page.getByText(/no response/i)).toBeVisible();
+  await expect(page.getByText(/đã chấp nhận/i)).toBeVisible();
+  await expect(page.getByText(/chưa phản hồi/i)).toBeVisible();
 
   await page.goto("/gather/qa-expired");
   await capture(page, testInfo, "gather-expired-390.png");

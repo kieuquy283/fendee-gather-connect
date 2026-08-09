@@ -5,6 +5,9 @@ import { EmptyState, TopBar } from "@/components/fendee/ui";
 import { notifications, type Notice } from "@/lib/fendee-data";
 import { useGatherStore, type GatherNotification } from "@/lib/gather-store";
 import { usePresence } from "@/lib/presence-store";
+import { canViewNotification } from "@/lib/authorization";
+import { useAuth } from "@/lib/auth";
+import { usePrivacy } from "@/lib/privacy-store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +41,8 @@ const links = {
 } as const;
 
 function Notifications() {
+  const auth = useAuth();
+  const privacy = usePrivacy();
   const presence = usePresence();
   const gatherStore = useGatherStore();
   const sessionNotice: Notice | null =
@@ -45,15 +50,19 @@ function Notifications() {
       ? {
           id: "presence-session",
           type: "nearby",
-          title: "Presence shared",
-          body: `${presence.audienceLabel} received a one-time snapshot for ${presence.friendLocationSnapshot.zone.shortLabel}.`,
-          time: "now",
+          title: "Đã chia sẻ hiện diện",
+          body: `${presence.audienceLabel} đã nhận một snapshot một lần cho ${presence.friendLocationSnapshot.zone.shortLabel}.`,
+          time: "vừa xong",
           unread: true,
         }
       : null;
   const visibleNotifications = sessionNotice ? [sessionNotice, ...notifications] : notifications;
   const visibleGatherNotifications = gatherStore.notifications.filter(
-    (notice) => notice.recipientId === gatherStore.currentUserId,
+    (notice) =>
+      canViewNotification(
+        { id: auth.user?.id ?? "anonymous", authenticated: auth.status === "authenticated" },
+        notice.recipientId,
+      ) && !privacy.blockedUserIds.includes(notice.actorId),
   );
 
   return (
@@ -72,7 +81,7 @@ function Notifications() {
                       size="sm"
                       className="flex-1 rounded-full"
                       onClick={() =>
-                        gatherStore.respondToCohostInvite(
+                        void gatherStore.respondToCohostInvite(
                           notice.gatherId,
                           gatherStore.currentUserId,
                           "accepted",
@@ -86,7 +95,7 @@ function Notifications() {
                       variant="secondary"
                       className="flex-1 rounded-full"
                       onClick={() =>
-                        gatherStore.respondToCohostInvite(
+                        void gatherStore.respondToCohostInvite(
                           notice.gatherId,
                           gatherStore.currentUserId,
                           "declined",

@@ -1,54 +1,54 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Home, MapPin, Users, MessageCircle, User, Plus, Radar } from "lucide-react";
+import { Home, MapPin, MessageCircle, Plus, Radar, User, Users } from "lucide-react";
+import { RequireAuth } from "@/lib/auth";
 import { usePresence } from "@/lib/presence-store";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { to: "/home", label: "Home", icon: Home },
-  { to: "/nearby", label: "Nearby", icon: Radar },
-  { to: "/gather", label: "Gather", icon: Users, center: true },
-  { to: "/tram", label: "Trạm", icon: MapPin },
-  { to: "/chat", label: "Tin nhắn", icon: MessageCircle },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/home", label: "Trang chủ", shortLabel: "Nhà", icon: Home },
+  { to: "/nearby", label: "Nearby", shortLabel: "Nearby", icon: Radar },
+  { to: "/gather", label: "Tạo Gather", shortLabel: "Tạo", icon: Users, center: true },
+  { to: "/tram", label: "Trạm", shortLabel: "Trạm", icon: MapPin },
+  { to: "/chat", label: "Chat", shortLabel: "Chat", icon: MessageCircle },
+  { to: "/profile", label: "Tôi", shortLabel: "Tôi", icon: User },
 ];
 
 export function BottomNav() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+
   return (
-    <nav className="pointer-events-auto sticky bottom-0 z-30 -mx-5 border-t border-border/70 bg-background/90 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
-      <ul className="flex items-end justify-between">
-        {tabs.map((t) => {
-          const active = pathname === t.to || pathname.startsWith(t.to + "/");
-          const Icon = t.icon;
-          if (t.center) {
+    <nav className="pointer-events-auto sticky bottom-0 z-30 -mx-4 border-t border-border/70 bg-background/95 px-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl sm:-mx-5 sm:px-3">
+      <ul className="grid grid-cols-6 items-end gap-1">
+        {tabs.map((tab) => {
+          const active = pathname === tab.to || pathname.startsWith(`${tab.to}/`);
+          const Icon = tab.icon;
+
+          if (tab.center) {
             return (
-              <li key={t.to} className="flex-1">
+              <li key={tab.to} className="min-w-0">
                 <Link
                   to="/gather/new"
-                  className="mx-auto -mt-6 flex h-13 w-13 flex-col items-center justify-center rounded-2xl bg-accent-gradient text-primary-foreground shadow-glow"
-                  style={{ height: 52, width: 52 }}
-                  aria-label="Tạo Gather"
+                  aria-label={tab.label}
+                  className="mx-auto -mt-6 flex h-12 w-12 items-center justify-center rounded-[20px] bg-accent-gradient text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] max-[359px]:h-11 max-[359px]:w-11"
                 >
                   <Plus className="h-6 w-6" />
                 </Link>
-                <span className="mt-1 block text-center text-[10px] font-medium text-muted-foreground">
-                  Gather
-                </span>
               </li>
             );
           }
+
           return (
-            <li key={t.to} className="flex-1">
+            <li key={tab.to} className="min-w-0">
               <Link
-                to={t.to}
+                to={tab.to}
+                aria-label={tab.label}
                 className={cn(
-                  "flex flex-col items-center gap-1 rounded-xl py-1.5 text-[10px] font-medium transition-colors",
-                  active ? "text-primary" : "text-muted-foreground",
+                  "flex min-h-11 items-center justify-center rounded-2xl px-1 py-2 transition-colors",
+                  active ? "bg-accent/45 text-primary" : "text-muted-foreground",
                 )}
               >
                 <Icon className={cn("h-5 w-5", active && "drop-shadow-[0_0_8px_currentColor]")} />
-                {t.label}
               </Link>
             </li>
           );
@@ -62,10 +62,12 @@ export function AppShell({
   children,
   nav = true,
   bare = false,
+  protectedRoute = true,
 }: {
   children: ReactNode;
   nav?: boolean;
   bare?: boolean;
+  protectedRoute?: boolean;
 }) {
   const presence = usePresence();
   const status = presence.presenceSession?.status ?? "off";
@@ -73,30 +75,31 @@ export function AppShell({
     presence.isPresenceEnabled || status === "expired" || presence.permission === "lost";
   const label =
     status === "moving"
-      ? "Moving - hidden from Nearby"
+      ? "Bạn đang di chuyển, Nearby tạm ẩn"
       : status === "offline" || presence.permission === "lost"
-        ? "Location permission lost"
+        ? "Mất quyền vị trí"
         : status === "expired"
-          ? "Presence expired"
+          ? "Hiện diện đã hết hạn"
           : presence.isPresenceEnabled
-            ? `Nearby: ${presence.nearbyPresenceLocation?.zone.shortLabel ?? "hidden"} - Friends: ${
-                presence.friendLocationSnapshot?.zone.shortLabel ?? "none"
+            ? `Nearby: ${presence.nearbyPresenceLocation?.zone.shortLabel ?? "đang ẩn"} · Bạn bè: ${
+                presence.friendLocationSnapshot?.zone.shortLabel ?? "chưa chia sẻ"
               }`
             : "";
 
-  return (
-    <div className="min-h-screen bg-background">
+  const shell = (
+    <div className="min-h-[100dvh] bg-background">
       <div
         className={cn(
-          "relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5",
+          "relative mx-auto flex min-h-[100dvh] w-full max-w-[430px] flex-col px-4 sm:px-5",
           !bare && "pb-4",
           "sm:border-x sm:border-border/60",
         )}
       >
         {showPresence && (
           <div
+            aria-live="polite"
             className={cn(
-              "sticky top-0 z-40 -mx-5 border-b border-border/70 px-5 py-2 text-center text-[11px] font-medium backdrop-blur-xl",
+              "sticky top-0 z-40 -mx-4 border-b border-border/70 px-4 py-[max(0.625rem,env(safe-area-inset-top))] text-center text-[11px] font-semibold backdrop-blur-xl sm:-mx-5 sm:px-5",
               status === "moving" || status === "offline" || presence.permission === "lost"
                 ? "bg-warn/15 text-warn-foreground"
                 : status === "expired"
@@ -107,9 +110,11 @@ export function AppShell({
             {label}
           </div>
         )}
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pb-3">{children}</main>
         {nav && <BottomNav />}
       </div>
     </div>
   );
+
+  return protectedRoute ? <RequireAuth>{shell}</RequireAuth> : shell;
 }

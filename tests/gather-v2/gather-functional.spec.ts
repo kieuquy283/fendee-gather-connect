@@ -91,15 +91,15 @@ test("@gather-functional owner and co-host permissions are enforced on manage ro
   await seedGatherState(page, qaState());
 
   await page.goto("/gather/qa-owner/manage");
-  await expect(page.getByRole("button", { name: /End Gather/i })).toBeEnabled();
-  await page.getByRole("button", { name: /End Gather/i }).click();
+  await expect(page.getByRole("button", { name: /Kết thúc Gather/i })).toBeEnabled();
+  await page.getByRole("button", { name: /Kết thúc Gather/i }).click();
   expect((await getGather(page, "qa-owner")).status).toBe("ended");
 
   await seedGatherState(page, qaState());
   await page.goto("/gather/qa-cohost/manage");
-  await expect(page.getByRole("button", { name: /Edit Gather/i })).toBeEnabled();
-  await expect(page.getByRole("button", { name: /End Gather/i })).toBeDisabled();
-  await expect(page.getByRole("button", { name: /Manage co-hosts/i })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Sửa Gather/i })).toBeEnabled();
+  await expect(page.getByRole("button", { name: /Kết thúc Gather/i })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Quản lý co-host/i })).toBeDisabled();
   expect((await getGather(page, "qa-cohost")).status).toBe("live");
 });
 
@@ -125,10 +125,9 @@ test("@gather-functional notification routing, uniqueness, and privacy copy", as
   await expect(page.getByText("GATHER ENDED")).toBeVisible();
 
   const notifications = await page.evaluate(() => {
-    const state = JSON.parse(window.localStorage.getItem("fendee-gather-state-v2")!) as {
-      notifications: GatherNotification[];
-    };
-    return state.notifications;
+    return fetch("/api/d4/gathers", { credentials: "include" })
+      .then((response) => response.json())
+      .then((state: { notifications: GatherNotification[] }) => state.notifications);
   });
   expect(notifications.map((notice) => notice.id)).toHaveLength(
     new Set(notifications.map((notice) => notice.id)).size,
@@ -156,22 +155,21 @@ test("@gather-functional persistence survives reload and corrupted state fails s
     window.localStorage.setItem("fendee-gather-state-v2", "{bad-json");
   });
   await page.goto("/gather");
-  await expect(page.getByRole("heading", { name: "Gather" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Gather" }).first()).toBeVisible();
   await assertNoHorizontalOverflow(page);
 
   await page.evaluate(() => {
     window.localStorage.setItem("fendee-gather-state-v2", JSON.stringify({ gathers: [{}] }));
   });
   await page.goto("/gather");
-  await expect(page.getByRole("heading", { name: "Gather" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Gather" }).first()).toBeVisible();
   await assertNoHorizontalOverflow(page);
 });
 
 async function latestGather(page: Page): Promise<Gather> {
-  const gather = await page.evaluate(() => {
-    const state = JSON.parse(window.localStorage.getItem("fendee-gather-state-v2")!) as {
-      gathers: Gather[];
-    };
+  const gather = await page.evaluate(async () => {
+    const response = await fetch("/api/d4/gathers", { credentials: "include" });
+    const state = (await response.json()) as { gathers: Gather[] };
     return state.gathers[0];
   });
   if (!gather) throw new Error("Expected at least one Gather in localStorage");
@@ -179,11 +177,15 @@ async function latestGather(page: Page): Promise<Gather> {
 }
 
 async function getGather(page: Page, id: string): Promise<Gather> {
-  const gather = await page.evaluate((gatherId: string) => {
-    const state = JSON.parse(window.localStorage.getItem("fendee-gather-state-v2")!) as {
-      gathers: Gather[];
-    };
-    return state.gathers.find((gather) => gather.id === gatherId);
+  const gather = await page.evaluate(async (gatherId: string) => {
+    const response = await fetch(
+      `/api/dev/d4/debug-state?gatherId=${encodeURIComponent(gatherId)}`,
+      {
+        credentials: "include",
+      },
+    );
+    const state = (await response.json()) as { gather: Gather | null };
+    return state.gather;
   }, id);
   if (!gather) throw new Error(`Expected Gather ${id} in localStorage`);
   return gather;
@@ -191,13 +193,14 @@ async function getGather(page: Page, id: string): Promise<Gather> {
 
 async function getInvite(page: Page, gatherId: string, personId: string): Promise<GatherInvite> {
   const invite = await page.evaluate(
-    ({ gatherId: id, personId: targetId }) => {
-      const state = JSON.parse(window.localStorage.getItem("fendee-gather-state-v2")!) as {
-        gathers: Array<Gather & { invites: GatherInvite[] }>;
+    async ({ gatherId: id, personId: targetId }) => {
+      const response = await fetch(`/api/dev/d4/debug-state?gatherId=${encodeURIComponent(id)}`, {
+        credentials: "include",
+      });
+      const state = (await response.json()) as {
+        gather: (Gather & { invites: GatherInvite[] }) | null;
       };
-      return state.gathers
-        .find((gather) => gather.id === id)
-        ?.invites.find((invite) => invite.personId === targetId);
+      return state.gather?.invites.find((entry) => entry.personId === targetId);
     },
     { gatherId, personId },
   );
