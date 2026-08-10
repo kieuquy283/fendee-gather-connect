@@ -1,15 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Home, MapPin, MessageCircle, Plus, Radar, User, Users } from "lucide-react";
+import { Home, MapPin, MessageCircle, Plus, User, Users } from "lucide-react";
 import { RequireAuth } from "@/lib/auth";
 import { usePresence } from "@/lib/presence-store";
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { to: "/home", label: "Trang chủ", shortLabel: "Nhà", icon: Home },
-  { to: "/nearby", label: "Nearby", shortLabel: "Nearby", icon: Radar },
-  { to: "/gather", label: "Tạo Gather", shortLabel: "Tạo", icon: Users, center: true },
   { to: "/tram", label: "Trạm", shortLabel: "Trạm", icon: MapPin },
+  { to: "/gather", label: "Tạo Gather", shortLabel: "Tạo", icon: Users, center: true },
   { to: "/chat", label: "Chat", shortLabel: "Chat", icon: MessageCircle },
   { to: "/profile", label: "Tôi", shortLabel: "Tôi", icon: User },
 ];
@@ -19,7 +18,7 @@ export function BottomNav() {
 
   return (
     <nav className="pointer-events-auto sticky bottom-0 z-30 -mx-4 border-t border-border/70 bg-background/95 px-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl sm:-mx-5 sm:px-3">
-      <ul className="grid grid-cols-6 items-end gap-1">
+      <ul className="grid grid-cols-5 items-end gap-1">
         {tabs.map((tab) => {
           const active = pathname === tab.to || pathname.startsWith(`${tab.to}/`);
           const Icon = tab.icon;

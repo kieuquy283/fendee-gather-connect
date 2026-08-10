@@ -36,7 +36,7 @@ const icons = {
 const links = {
   gather: "/gather",
   friend: "/friends/requests",
-  nearby: "/nearby",
+  nearby: "/home",
   system: "/settings/privacy",
 } as const;
 

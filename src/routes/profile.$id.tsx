@@ -87,7 +87,7 @@ function OtherProfile() {
     <AppShell>
       <TopBar
         title="Hồ sơ"
-        back="/nearby"
+        back="/home"
         right={
           <Dialog>
             <DialogTrigger asChild>

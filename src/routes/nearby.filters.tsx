@@ -35,7 +35,7 @@ function Filters() {
     <AppShell>
       <TopBar
         title="Bộ lọc"
-        back="/nearby"
+        back="/home"
         right={
           <button
             className="flex items-center gap-1 text-xs font-medium text-primary"
@@ -114,7 +114,7 @@ function Filters() {
       </section>
 
       <Button size="lg" className="mb-4 mt-6 w-full rounded-full" asChild>
-        <Link to="/nearby">Áp dụng bộ lọc</Link>
+        <Link to="/home">Áp dụng bộ lọc</Link>
       </Button>
     </AppShell>
   );
